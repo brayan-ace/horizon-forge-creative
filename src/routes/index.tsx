@@ -68,10 +68,10 @@ function Hero() {
 
       <motion.div
         style={{ opacity }}
-        className="relative z-10 mx-auto flex h-full max-w-[1440px] flex-col justify-end px-6 pb-24 pt-32 lg:px-10 lg:pb-32"
+        className="relative z-10 mx-auto flex h-full max-w-[1440px] flex-col items-center justify-center px-6 pb-24 pt-32 text-center lg:px-10 lg:pb-32"
       >
         <Reveal delay={0.1}>
-          <div className="eyebrow text-orange">01 — Horizon 7 Company Ltd</div>
+          <div className="eyebrow text-orange mt-12">01 — Horizon 7 Company Ltd</div>
         </Reveal>
         <Reveal delay={0.2}>
           <h1 className="mt-6 max-w-5xl font-display text-[clamp(2.5rem,7vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.03em] text-white">
@@ -88,7 +88,7 @@ function Hero() {
           </p>
         </Reveal>
         <Reveal delay={0.5}>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <QuoteButton variant="primary">Request a Quote</QuoteButton>
             <CTALink to="/services" variant="outline-light">
               Explore Services
