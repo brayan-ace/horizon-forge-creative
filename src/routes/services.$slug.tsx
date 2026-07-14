@@ -76,7 +76,7 @@ function ServiceDetail() {
             <Reveal delay={0.15} className="lg:col-span-5">
               <div className="eyebrow">Capabilities</div>
               <ul className="mt-6 space-y-4">
-                {service.capabilities.map((c) => (
+                {service.capabilities.map((c: string) => (
                   <li key={c} className="flex items-start gap-3 border-b border-hairline pb-4">
                     <Check className="mt-1 h-5 w-5 flex-shrink-0 text-orange" strokeWidth={2} />
                     <span className="text-base">{c}</span>
