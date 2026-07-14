@@ -81,11 +81,11 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
       </div>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-[60] bg-background lg:hidden">
-          <div className="flex h-20 items-center justify-between border-b border-hairline px-6">
-            <Logo variant="dark" />
+        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md text-white lg:hidden">
+          <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
+            <Logo variant="light" />
             <button
-              className="inline-flex h-11 w-11 items-center justify-center"
+              className="inline-flex h-11 w-11 items-center justify-center text-white"
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
@@ -98,7 +98,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
-                className="border-b border-hairline py-5 font-display text-3xl font-medium"
+                className="border-b border-white/10 py-5 font-display text-3xl font-medium text-white transition-colors hover:text-orange"
               >
                 {item.label}
               </Link>
@@ -108,7 +108,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 setMobileOpen(false);
                 openQuote();
               }}
-              className="mt-8 inline-flex items-center justify-center gap-3 bg-foreground px-6 py-4 text-sm font-medium text-background"
+              className="mt-8 inline-flex items-center justify-center gap-3 bg-orange px-6 py-4 text-sm font-medium text-white transition-colors hover:bg-orange/90"
             >
               Request a Quote →
             </button>
