@@ -19,10 +19,10 @@ export const Route = createFileRoute("/")({
         content:
           "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
-      { property: "og:title", content: "Horizon 7 Company Ltd — Industrial Engineering" },
+      { property: "og:title", content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
       {
         property: "og:description",
-        content: "Engineering Excellence. Industrial Precision. Built for Tomorrow.",
+        content: "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
       { property: "og:url", content: "/" },
     ],

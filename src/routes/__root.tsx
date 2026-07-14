@@ -74,23 +74,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Horizon 7 Company Ltd — Industrial Engineering, Fabrication & Construction" },
+      { title: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
       {
         name: "description",
         content:
-          "Horizon 7 Company Ltd delivers world-class engineering, welding, fabrication, construction and industrial equipment services across Cameroon and Central Africa.",
+          "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
       { name: "author", content: "Horizon 7 Company Ltd" },
       { name: "theme-color", content: "#0D1B2A" },
       { property: "og:site_name", content: "Horizon 7 Company Ltd" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Horizon 7 Company Ltd — Industrial Engineering" },
+      { property: "og:title", content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
       {
         property: "og:description",
         content:
-          "Engineering excellence. Industrial precision. World-class fabrication, welding and construction in Cameroon.",
+          "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
+      { name: "twitter:description", content: "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a3929c67-128a-4a70-9134-bd8d3a4c212d/id-preview-80d2c222--cf995722-8aa9-4072-8991-1d1e9e5727a5.lovable.app-1783995340652.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a3929c67-128a-4a70-9134-bd8d3a4c212d/id-preview-80d2c222--cf995722-8aa9-4072-8991-1d1e9e5727a5.lovable.app-1783995340652.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
