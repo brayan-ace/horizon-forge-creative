@@ -9,8 +9,8 @@ export const SITE = {
   whatsappRaw: "237678258919",
   address: "Douala, Cameroon",
   hours: "Mon – Fri · 08:00 – 18:00 WAT",
-  mapEmbed: "https://www.google.com/maps?q=Douala%2C+Cameroon&output=embed",
-  mapLink: "https://maps.app.goo.gl/ZFV5Hb45SKfCL5gv9",
+  mapEmbed: "https://www.google.com/maps?q=HORIZON+7+Company+Ltd+Cameroon&output=embed",
+  mapLink: "https://maps.app.goo.gl/JPu61PXyQ14PC7wT9",
 };
 
 export function waLink(message?: string) {
