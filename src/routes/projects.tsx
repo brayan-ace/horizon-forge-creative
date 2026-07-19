@@ -16,7 +16,8 @@ export const Route = createFileRoute("/projects")({
       { property: "og:title", content: "Projects — Horizon 7 Company Ltd" },
       {
         property: "og:description",
-        content: "Fabrication yards, refinery turnarounds, bridges, warehouses and heavy equipment deployments.",
+        content:
+          "Fabrication yards, refinery turnarounds, bridges, warehouses and heavy equipment deployments.",
       },
       { property: "og:url", content: "/projects" },
     ],

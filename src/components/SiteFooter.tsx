@@ -36,21 +36,57 @@ export function SiteFooter() {
           <div className="lg:col-span-2">
             <div className="eyebrow text-white/50">Company</div>
             <ul className="mt-5 space-y-3 text-sm">
-              <li><Link to="/about" className="text-white/80 hover:text-orange">About</Link></li>
-              <li><Link to="/projects" className="text-white/80 hover:text-orange">Projects</Link></li>
-              <li><Link to="/safety" className="text-white/80 hover:text-orange">Safety</Link></li>
-              <li><Link to="/contact" className="text-white/80 hover:text-orange">Contact</Link></li>
+              <li>
+                <Link to="/about" className="text-white/80 hover:text-orange">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/projects" className="text-white/80 hover:text-orange">
+                  Projects
+                </Link>
+              </li>
+              <li>
+                <Link to="/safety" className="text-white/80 hover:text-orange">
+                  Safety
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-white/80 hover:text-orange">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div className="lg:col-span-3">
             <div className="eyebrow text-white/50">Services</div>
             <ul className="mt-5 space-y-3 text-sm">
-              <li><Link to="/services" className="text-white/80 hover:text-orange">Industrial Welding</Link></li>
-              <li><Link to="/services" className="text-white/80 hover:text-orange">Mechanical Fabrication</Link></li>
-              <li><Link to="/services" className="text-white/80 hover:text-orange">Civil Engineering</Link></li>
-              <li><Link to="/services" className="text-white/80 hover:text-orange">Construction</Link></li>
-              <li><Link to="/equipment" className="text-white/80 hover:text-orange">Equipment Rentals</Link></li>
+              <li>
+                <Link to="/services" className="text-white/80 hover:text-orange">
+                  Industrial Welding
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" className="text-white/80 hover:text-orange">
+                  Mechanical Fabrication
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" className="text-white/80 hover:text-orange">
+                  Civil Engineering
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" className="text-white/80 hover:text-orange">
+                  Construction
+                </Link>
+              </li>
+              <li>
+                <Link to="/equipment" className="text-white/80 hover:text-orange">
+                  Equipment Rentals
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -63,7 +99,12 @@ export function SiteFooter() {
                 </a>
               </li>
               <li>
-                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-orange">
+                <a
+                  href={waLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-orange"
+                >
                   {SITE.whatsapp}
                 </a>
               </li>
@@ -77,7 +118,9 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/50 md:flex-row md:items-center">
-          <div>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</div>
+          <div>
+            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+          </div>
           <div className="flex items-center gap-6">
             <span className="eyebrow text-white/40">Cameroon · Central Africa</span>
           </div>

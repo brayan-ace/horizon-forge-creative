@@ -3,7 +3,7 @@ import { PageShell, PageHeader } from "@/components/PageShell";
 import { Reveal, RevealImage } from "@/components/Reveal";
 import { QuoteButton, CTALink } from "@/components/CTAButton";
 import { IMG, STATS } from "@/lib/content";
-import { StatCounter } from "@/components/StatCounter";
+import { StatStrip } from "@/components/StatStrip";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -76,8 +76,8 @@ function AboutPage() {
               <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
                 Horizon 7 was built on a simple observation: Africa's most ambitious industrial
                 projects deserve contractors who deliver to the same standards demanded in Europe,
-                the Gulf or North America. We assembled a team of coded welders, chartered
-                engineers and heavy-equipment specialists to close that gap.
+                the Gulf or North America. We assembled a team of coded welders, chartered engineers
+                and heavy-equipment specialists to close that gap.
               </p>
               <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
                 Today, we support refineries, mining operators, EPC contractors and government
@@ -86,25 +86,16 @@ function AboutPage() {
               </p>
               <div className="mt-10 flex flex-wrap gap-4">
                 <QuoteButton>Work With Us</QuoteButton>
-                <CTALink to="/projects" variant="outline">See Projects</CTALink>
+                <CTALink to="/projects" variant="outline">
+                  See Projects
+                </CTALink>
               </div>
             </Reveal>
           </div>
         </div>
       </section>
 
-      <section className="border-y border-hairline bg-muted/40">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-8 px-6 py-20 lg:grid-cols-4 lg:px-10">
-          {STATS.map((s) => (
-            <div key={s.label} className="hairline-top pt-6">
-              <div className="font-display text-5xl font-medium tracking-tight">
-                <StatCounter value={s.value} suffix={s.suffix} />
-              </div>
-              <div className="mt-3 text-sm text-muted-foreground">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatStrip className="border-y border-hairline bg-muted/40" />
 
       <section className="bg-background">
         <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">

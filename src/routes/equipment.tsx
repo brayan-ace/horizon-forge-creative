@@ -72,7 +72,11 @@ function EquipmentPage() {
                     </dl>
                     <div className="mt-6 flex-1" />
                     <div className="mt-6">
-                      <QuoteButton subject={`${e.name} rental`} variant="secondary" className="w-full justify-center">
+                      <QuoteButton
+                        subject={`${e.name} rental`}
+                        variant="secondary"
+                        className="w-full justify-center"
+                      >
                         Request Quote
                       </QuoteButton>
                     </div>

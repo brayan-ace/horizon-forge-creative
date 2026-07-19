@@ -84,7 +84,9 @@ function ServicesPage() {
             </div>
             <div className="flex gap-3">
               <QuoteButton>Request a Quote</QuoteButton>
-              <CTALink to="/contact" variant="outline">Contact</CTALink>
+              <CTALink to="/contact" variant="outline">
+                Contact
+              </CTALink>
             </div>
           </div>
         </div>

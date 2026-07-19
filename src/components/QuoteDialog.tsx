@@ -65,7 +65,10 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                     <div className="text-sm text-muted-foreground">{SITE.whatsapp}</div>
                   </div>
                 </div>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
+                <ArrowRight
+                  className="h-5 w-5 transition-transform group-hover:translate-x-1"
+                  aria-hidden
+                />
               </a>
 
               <a
@@ -81,7 +84,10 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                     <div className="text-sm text-muted-foreground">{SITE.email}</div>
                   </div>
                 </div>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
+                <ArrowRight
+                  className="h-5 w-5 transition-transform group-hover:translate-x-1"
+                  aria-hidden
+                />
               </a>
             </div>
 

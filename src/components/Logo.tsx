@@ -9,18 +9,18 @@ export function Logo({ variant = "dark", compact = false }: Props) {
   const fg = variant === "dark" ? "text-foreground" : "text-white";
   const sub = variant === "dark" ? "text-muted-foreground" : "text-white/70";
   return (
-    <Link to="/" aria-label="Horizon 7 Company Ltd — Home" className="group inline-flex items-center gap-3">
+    <Link
+      to="/"
+      aria-label="Horizon 7 Company Ltd — Home"
+      className="group inline-flex items-center gap-3"
+    >
       <LogoMark variant={variant} />
       {!compact && (
         <span className="flex flex-col leading-none">
-          <span
-            className={`font-display text-[1.35rem] font-semibold tracking-[-0.02em] ${fg}`}
-          >
+          <span className={`font-display text-[1.35rem] font-semibold tracking-[-0.02em] ${fg}`}>
             Horizon <span className="text-orange">7</span>
           </span>
-          <span
-            className={`mt-1 text-[0.58rem] font-medium uppercase tracking-[0.28em] ${sub}`}
-          >
+          <span className={`mt-1 text-[0.58rem] font-medium uppercase tracking-[0.28em] ${sub}`}>
             Company Ltd
           </span>
         </span>
@@ -29,7 +29,13 @@ export function Logo({ variant = "dark", compact = false }: Props) {
   );
 }
 
-export function LogoMark({ variant = "dark", size = 34 }: { variant?: "dark" | "light"; size?: number }) {
+export function LogoMark({
+  variant = "dark",
+  size = 34,
+}: {
+  variant?: "dark" | "light";
+  size?: number;
+}) {
   const stroke = variant === "dark" ? "#0D1B2A" : "#FFFFFF";
   return (
     <svg

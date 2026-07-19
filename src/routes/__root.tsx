@@ -4,10 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -84,17 +86,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0D1B2A" },
       { property: "og:site_name", content: "Horizon 7 Company Ltd" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
+      {
+        property: "og:title",
+        content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon",
+      },
       {
         property: "og:description",
         content:
           "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
-      { name: "twitter:description", content: "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a3929c67-128a-4a70-9134-bd8d3a4c212d/id-preview-80d2c222--cf995722-8aa9-4072-8991-1d1e9e5727a5.lovable.app-1783995340652.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a3929c67-128a-4a70-9134-bd8d3a4c212d/id-preview-80d2c222--cf995722-8aa9-4072-8991-1d1e9e5727a5.lovable.app-1783995340652.png" },
+      {
+        name: "twitter:title",
+        content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a3929c67-128a-4a70-9134-bd8d3a4c212d/id-preview-80d2c222--cf995722-8aa9-4072-8991-1d1e9e5727a5.lovable.app-1783995340652.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a3929c67-128a-4a70-9134-bd8d3a4c212d/id-preview-80d2c222--cf995722-8aa9-4072-8991-1d1e9e5727a5.lovable.app-1783995340652.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -144,11 +164,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
 
   return (
     <QueryClientProvider client={queryClient}>
       <QuoteProvider>
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </QuoteProvider>
     </QueryClientProvider>
   );

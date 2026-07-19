@@ -15,12 +15,13 @@ export function Reveal({
   as?: React.ElementType;
 }) {
   const reduce = useReducedMotion();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const MotionTag = motion(Tag as any);
   return (
     <MotionTag
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
@@ -35,12 +36,14 @@ export function RevealImage({
   className = "",
   aspect = "aspect-[4/5]",
   priority = false,
+  hoverZoom = false,
 }: {
   src: string;
   alt: string;
   className?: string;
   aspect?: string;
   priority?: boolean;
+  hoverZoom?: boolean;
 }) {
   const reduce = useReducedMotion();
   return (
@@ -48,19 +51,23 @@ export function RevealImage({
       className={`relative overflow-hidden bg-muted ${aspect} ${className}`}
       initial={reduce ? false : { clipPath: "inset(0 0 100% 0)" }}
       whileInView={{ clipPath: "inset(0 0 0% 0)" }}
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
       transition={{ duration: 1.1, ease: [0.65, 0, 0.35, 1] }}
     >
-      <motion.img
-        src={src}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        className="h-full w-full object-cover"
-        initial={reduce ? false : { scale: 1.15 }}
-        whileInView={{ scale: 1 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-      />
+      <div
+        className={`h-full w-full ${hoverZoom ? "transition-transform duration-[900ms] ease-out group-hover:scale-105" : ""}`}
+      >
+        <motion.img
+          src={src}
+          alt={alt}
+          loading={priority ? "eager" : undefined}
+          className="h-full w-full object-cover"
+          initial={reduce ? false : { scale: 1.15 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
     </motion.div>
   );
 }

@@ -6,7 +6,7 @@ import { ArrowRight, Shield, Award, Wrench, Truck, Clock, Sparkles } from "lucid
 import { PageShell } from "@/components/PageShell";
 import { CTALink, QuoteButton } from "@/components/CTAButton";
 import { Reveal, RevealImage } from "@/components/Reveal";
-import { StatCounter } from "@/components/StatCounter";
+import { StatStrip } from "@/components/StatStrip";
 import { SITE } from "@/lib/site";
 import { IMG, SERVICES, WHY_CHOOSE_US, STATS, TESTIMONIALS, PROJECTS } from "@/lib/content";
 
@@ -19,10 +19,14 @@ export const Route = createFileRoute("/")({
         content:
           "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
-      { property: "og:title", content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon" },
+      {
+        property: "og:title",
+        content: "Horizon 7 Company Ltd — Industrial Engineering & Fabrication in Cameroon",
+      },
       {
         property: "og:description",
-        content: "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
+        content:
+          "Engineering excellence and industrial precision. Welding, fabrication, construction, civil engineering and heavy equipment services across Cameroon.",
       },
       { property: "og:url", content: "/" },
     ],
@@ -57,11 +61,14 @@ function Hero() {
   return (
     <section ref={ref} className="relative h-[100svh] min-h-[720px] overflow-hidden bg-foreground">
       <motion.div style={{ y }} className="absolute inset-0">
-        <img
+        <motion.img
           src={IMG.heroWelder}
           alt="Certified industrial welder performing structural steel welding at a Horizon 7 fabrication yard"
           className="h-[115%] w-full object-cover"
           fetchPriority="high"
+          initial={{ scale: 1.0 }}
+          animate={{ scale: 1.05 }}
+          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy/85" />
       </motion.div>
@@ -105,52 +112,61 @@ function Hero() {
   );
 }
 
-function StatStrip() {
-  return (
-    <section className="border-b border-hairline bg-background">
-      <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-8 px-6 py-16 lg:grid-cols-4 lg:px-10 lg:py-20">
-        {STATS.map((s, i) => (
-          <Reveal key={s.label} delay={i * 0.08}>
-            <div className="hairline-top pt-6">
-              <div className="font-display text-5xl font-medium tracking-tight lg:text-6xl">
-                <StatCounter value={s.value} suffix={s.suffix} />
-              </div>
-              <div className="mt-3 text-sm font-medium text-muted-foreground">{s.label}</div>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function IntroBand() {
   return (
-    <section className="bg-background">
-      <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-40">
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-12">
-          <Reveal className="lg:col-span-5">
-            <div className="eyebrow">About</div>
-            <h2 className="mt-6 font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-6xl">
+    <section className="relative overflow-hidden bg-navy text-white">
+      {/* Subtle Engineering Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
+
+      {/* Premium subtle gradient orb in the top left */}
+      <div className="absolute -left-[20%] -top-[20%] h-[600px] w-[600px] rounded-full bg-orange/10 blur-[120px]" />
+
+      <div className="relative z-10 mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-40">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-8">
+          <Reveal className="relative lg:col-span-5">
+            {/* Oversized Typographic Watermark */}
+            <div
+              className="absolute -left-6 -top-16 -z-10 select-none font-display text-[160px] font-bold leading-none tracking-tighter text-white/[0.03] sm:-top-24 sm:text-[220px] lg:-left-12 lg:-top-32 lg:text-[280px]"
+              aria-hidden
+            >
+              H7
+            </div>
+
+            <div className="eyebrow flex items-center gap-3">
+              <span className="h-px w-6 bg-orange" />
+              About
+            </div>
+            <h2 className="mt-8 font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-6xl">
               A Cameroonian engineering firm building to international standards.
             </h2>
           </Reveal>
+
           <Reveal delay={0.15} className="lg:col-span-6 lg:col-start-7">
-            <p className="text-lg leading-relaxed text-muted-foreground">
-              Horizon 7 Company Ltd is an industrial engineering and construction firm delivering
-              coded welding, precision fabrication, civil works and heavy equipment services to
-              refineries, power plants, mines and government infrastructure programs across Central
-              Africa.
-            </p>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Our discipline is engineering-led. Every scope is planned, executed and handed over
-              with the documentation, safety record and quality control our clients expect from
-              world-class contractors.
-            </p>
-            <div className="mt-10">
-              <Link to="/about" className="link-underline text-sm font-medium">
-                Read our story →
-              </Link>
+            {/* Layered Content Card with Accent */}
+            <div className="relative border border-hairline bg-background p-8 text-foreground shadow-sm sm:p-10 lg:p-14">
+              <div className="absolute left-0 top-0 h-full w-1.5 bg-orange" />
+
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                Horizon 7 Company Ltd is an industrial engineering and construction firm delivering
+                coded welding, precision fabrication, civil works and heavy equipment services to
+                refineries, power plants, mines and government infrastructure programs across
+                Central Africa.
+              </p>
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                Our discipline is engineering-led. Every scope is planned, executed and handed over
+                with the documentation, safety record and quality control our clients expect from
+                world-class contractors.
+              </p>
+
+              <div className="mt-10">
+                <Link
+                  to="/about"
+                  className="group inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-orange"
+                >
+                  Read our story
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </Link>
+              </div>
             </div>
           </Reveal>
         </div>
@@ -186,11 +202,13 @@ function ServicesTeaser() {
             <Reveal key={s.slug} delay={i * 0.1}>
               <Link to="/services/$slug" params={{ slug: s.slug }} className="group block">
                 <div className="relative overflow-hidden bg-foreground aspect-[4/5]">
-                  <img
+                  <RevealImage
                     src={s.image}
                     alt={s.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                    aspect="aspect-[4/5]"
+                    hoverZoom={true}
+                    priority={i === 0}
+                    className="absolute inset-0 h-full w-full"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-6">
@@ -211,30 +229,50 @@ function ServicesTeaser() {
 
 function WhyChooseUs() {
   return (
-    <section className="bg-background">
+    <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/80">
+      {/* Subtle Oversized Watermark */}
+      <div
+        className="absolute -right-20 top-20 select-none font-display text-[400px] font-bold leading-none tracking-tighter text-foreground/[0.02]"
+        aria-hidden
+      >
+        03
+      </div>
       <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
-        <Reveal>
+        <Reveal className="relative z-10">
           <div className="eyebrow">03 — Why Horizon 7</div>
-          <h2 className="mt-6 max-w-3xl font-display text-4xl font-medium tracking-[-0.02em] sm:text-5xl lg:text-6xl">
+          <h2 className="mt-6 max-w-3xl font-display text-4xl font-medium tracking-[-0.02em] text-orange sm:text-5xl lg:text-6xl">
             Six commitments we deliver on every project.
           </h2>
         </Reveal>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="relative z-10 mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {WHY_CHOOSE_US.map((item, i) => {
             const Icon = ICON_MAP[i] ?? Award;
             return (
-              <Reveal
-                key={item.index}
-                delay={i * 0.06}
-                className="group border-l border-t border-hairline p-8 transition-colors hover:bg-muted/50 lg:p-10"
-              >
-                <div className="flex items-start justify-between">
-                  <Icon className="h-8 w-8 text-orange" strokeWidth={1.5} />
-                  <div className="eyebrow">{item.index}</div>
+              <Reveal key={item.index} delay={i * 0.06} className="h-full">
+                <div className="group relative h-full overflow-hidden border border-hairline bg-background p-8 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:p-10">
+                  {/* Decorative Top Accent Line */}
+                  <div className="absolute inset-x-0 top-0 h-1 bg-transparent transition-colors duration-300 group-hover:bg-orange" />
+
+                  {/* Ambient Interactive Glow */}
+                  <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-orange/5 blur-2xl transition-all duration-700 group-hover:scale-[2.5] group-hover:bg-orange/15" />
+
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div className="flex h-14 w-14 items-center justify-center bg-muted/50 transition-colors duration-500 group-hover:bg-orange/10">
+                      <Icon className="h-6 w-6 text-orange" strokeWidth={1.5} />
+                    </div>
+                    <div className="eyebrow text-muted-foreground transition-colors group-hover:text-foreground">
+                      {item.index}
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 mt-12">
+                    <h3 className="font-display text-2xl font-medium">{item.title}</h3>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {item.body}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="mt-10 font-display text-2xl font-medium">{item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
               </Reveal>
             );
           })}

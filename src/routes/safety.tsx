@@ -76,11 +76,17 @@ function SafetyPage() {
                 protects our people, our clients' assets and the communities we operate in.
               </p>
               <div className="mt-10">
-                <QuoteButton subject="HSE-critical scope">Discuss your HSE requirements</QuoteButton>
+                <QuoteButton subject="HSE-critical scope">
+                  Discuss your HSE requirements
+                </QuoteButton>
               </div>
             </Reveal>
             <div className="lg:col-span-7">
-              <RevealImage src={IMG.scaffolding} alt="Certified scaffolding on an industrial facility" aspect="aspect-[4/3]" />
+              <RevealImage
+                src={IMG.scaffolding}
+                alt="Certified scaffolding on an industrial facility"
+                aspect="aspect-[4/3]"
+              />
             </div>
           </div>
         </div>

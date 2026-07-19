@@ -70,7 +70,9 @@ function ServiceDetail() {
               </p>
               <div className="mt-10 flex flex-wrap gap-4">
                 <QuoteButton subject={service.name}>Request a Quote</QuoteButton>
-                <CTALink to="/services" variant="outline">All Services</CTALink>
+                <CTALink to="/services" variant="outline">
+                  All Services
+                </CTALink>
               </div>
             </Reveal>
             <Reveal delay={0.15} className="lg:col-span-5">
