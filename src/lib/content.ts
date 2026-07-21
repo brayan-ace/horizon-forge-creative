@@ -191,10 +191,10 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    slug: "kribi-fabrication",
-    name: "Kribi Structural Fabrication",
+    slug: "coastal-fabrication",
+    name: "Coastal Structural Fabrication",
     category: "Fabrication",
-    location: "Kribi, Cameroon",
+    location: "Coastal Region, Cameroon",
     status: "Completed",
     description:
       "Fabrication and erection of 2,400 tonnes of structural steel for a deep-water port expansion program.",
@@ -425,4 +425,40 @@ export const TESTIMONIALS = [
     author: "Head of Engineering",
     role: "EPC Contractor, Central Africa",
   },
+  {
+    quote:
+      "We brought them in for emergency pipeline repair. Their team mobilized within hours and delivered flawless code-compliant welds under immense pressure.",
+    author: "Operations Manager",
+    role: "National Oil Company",
+  },
+  {
+    quote:
+      "Safety, speed, and accuracy. Horizon 7 redefined what we expect from local civil engineering partners. Their attention to international standards is remarkable.",
+    author: "Site Supervisor",
+    role: "Mining Corp, Garoua",
+  },
+  {
+    quote:
+      "Renting their heavy equipment fleet gave us the exact flexibility we needed. Outstanding maintenance records and highly skilled operators out of the box.",
+    author: "Procurement Lead",
+    role: "Infrastructure Group",
+  },
+  {
+    quote:
+      "They handled the steel erection for our 18,000 m² warehouse flawlessly. True engineering excellence down to the last bolt.",
+    author: "Logistics Director",
+    role: "Regional Distribution Center",
+  },
+  {
+    quote:
+      "Horizon 7 isn't just a contractor; they are a strategic partner. Their proactive problem-solving saved us millions on our recent power plant shutdown.",
+    author: "Plant Manager",
+    role: "Thermal Energy Facility",
+  },
+  {
+    quote:
+      "From planning to execution, their civil works team is unmatched in Central Africa. A seamless experience from day one.",
+    author: "Lead Architect",
+    role: "Urban Development Agency",
+  }
 ];

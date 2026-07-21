@@ -9,6 +9,14 @@ import { Reveal, RevealImage } from "@/components/Reveal";
 import { StatStrip } from "@/components/StatStrip";
 import { SITE } from "@/lib/site";
 import { IMG, SERVICES, WHY_CHOOSE_US, STATS, TESTIMONIALS, PROJECTS } from "@/lib/content";
+import Autoplay from "embla-carousel-autoplay";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -96,10 +104,10 @@ function Hero() {
         </Reveal>
         <Reveal delay={0.5}>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <QuoteButton variant="primary">Request a Quote</QuoteButton>
             <CTALink to="/services" variant="outline-light">
               Explore Services
             </CTALink>
+            <QuoteButton variant="primary" className="min-w-[240px] justify-center">Request a Quote</QuoteButton>
           </div>
         </Reveal>
       </motion.div>
@@ -187,14 +195,6 @@ function ServicesTeaser() {
               Integrated services for complex industrial projects.
             </h2>
           </Reveal>
-          <Reveal delay={0.15}>
-            <Link
-              to="/services"
-              className="link-underline inline-flex items-center gap-2 text-sm font-medium"
-            >
-              View all nine services <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Reveal>
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -222,6 +222,12 @@ function ServicesTeaser() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal delay={0.3} className="mt-12 flex justify-center lg:justify-end">
+          <CTALink to="/services" variant="primary">
+            View all nine services
+          </CTALink>
+        </Reveal>
       </div>
     </section>
   );
@@ -325,27 +331,86 @@ function FeaturedProjects() {
 }
 
 function Testimonials() {
+  const plugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true })
+  );
+
   return (
-    <section className="bg-background">
+    <section className="overflow-hidden bg-background">
       <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
         <Reveal>
           <div className="eyebrow">05 — Client Trust</div>
         </Reveal>
-        <div className="mt-16 grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-20">
-          {TESTIMONIALS.map((t, i) => (
-            <Reveal key={i} delay={i * 0.12}>
-              <div>
-                <div className="font-display text-6xl text-orange">"</div>
-                <blockquote className="mt-4 font-display text-2xl font-medium leading-snug tracking-[-0.01em] sm:text-3xl">
-                  {t.quote}
-                </blockquote>
-                <div className="mt-8 hairline-top pt-6">
-                  <div className="font-medium">{t.author}</div>
-                  <div className="text-sm text-muted-foreground">{t.role}</div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+        
+        <div className="mt-16 relative">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            plugins={[plugin.current]}
+            className="w-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
+          >
+            <CarouselContent className="-ml-4 md:-ml-6">
+              {TESTIMONIALS.map((t, i) => {
+                const styles = [
+                  {
+                    wrapper: "bg-navy text-white border-transparent",
+                    quoteMark: "text-orange/60 group-hover:text-orange",
+                    role: "text-white/60",
+                    border: "border-t border-white/10",
+                    glow: "bg-orange/10 group-hover:bg-orange/20"
+                  },
+                  {
+                    wrapper: "bg-orange/5 text-foreground border-orange/10",
+                    quoteMark: "text-orange/40 group-hover:text-orange",
+                    role: "text-muted-foreground",
+                    border: "border-t border-orange/20",
+                    glow: "bg-orange/10 group-hover:bg-orange/20"
+                  },
+                  {
+                    wrapper: "bg-muted/50 text-foreground border-hairline",
+                    quoteMark: "text-orange/30 group-hover:text-orange",
+                    role: "text-muted-foreground",
+                    border: "hairline-top",
+                    glow: "bg-orange/5 group-hover:bg-orange/15"
+                  },
+                ];
+                const s = styles[i % styles.length];
+
+                return (
+                  <CarouselItem key={i} className="pl-4 md:pl-6 md:basis-1/2 xl:basis-1/3">
+                    <div className={`group relative h-full overflow-hidden border p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl sm:p-10 ${s.wrapper}`}>
+                      <div className="absolute inset-x-0 top-0 h-1 bg-transparent transition-colors duration-300 group-hover:bg-orange" />
+                      <div className={`absolute -right-8 -bottom-8 h-32 w-32 rounded-full blur-2xl transition-all duration-700 group-hover:scale-[2.5] ${s.glow}`} />
+                      <div className="relative z-10 flex h-full flex-col">
+                        <div className={`font-display text-6xl transition-colors duration-300 ${s.quoteMark}`}>"</div>
+                        <blockquote className="mt-2 flex-grow font-display text-xl font-medium leading-snug tracking-[-0.01em] sm:text-2xl">
+                          {t.quote}
+                        </blockquote>
+                        <div className={`mt-8 pt-6 ${s.border}`}>
+                          <div className="font-medium">{t.author}</div>
+                          <div className={`text-sm ${s.role}`}>{t.role}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            
+            <div className="hidden xl:block">
+              <CarouselPrevious className="absolute -left-5 top-1/2 -translate-y-1/2 h-12 w-12 hover:bg-orange hover:text-white" />
+              <CarouselNext className="absolute -right-5 top-1/2 -translate-y-1/2 h-12 w-12 hover:bg-orange hover:text-white" />
+            </div>
+
+            <div className="mt-12 flex justify-center gap-4 xl:hidden">
+              <CarouselPrevious className="static translate-y-0 h-12 w-12 border-hairline hover:bg-orange hover:text-white" />
+              <CarouselNext className="static translate-y-0 h-12 w-12 border-hairline hover:bg-orange hover:text-white" />
+            </div>
+          </Carousel>
         </div>
       </div>
     </section>

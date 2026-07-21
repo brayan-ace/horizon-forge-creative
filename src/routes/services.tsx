@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { QuoteButton, CTALink } from "@/components/CTAButton";
 import { SERVICES } from "@/lib/content";
+import { waLink } from "@/lib/site";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -41,12 +42,12 @@ function ServicesPage() {
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((s, i) => (
               <Reveal key={s.slug} delay={(i % 3) * 0.08}>
-                <Link
-                  to="/services/$slug"
-                  params={{ slug: s.slug }}
-                  className="group flex h-full flex-col"
-                >
-                  <div className="relative overflow-hidden bg-foreground aspect-[4/5]">
+                <div className="group flex h-full flex-col">
+                  <Link
+                    to="/services/$slug"
+                    params={{ slug: s.slug }}
+                    className="relative block overflow-hidden bg-foreground aspect-[4/5]"
+                  >
                     <img
                       src={s.image}
                       alt={s.name}
@@ -58,15 +59,25 @@ function ServicesPage() {
                       <div className="eyebrow text-orange">{s.index}</div>
                       <ArrowRight className="h-5 w-5 text-white transition-transform group-hover:translate-x-1" />
                     </div>
-                  </div>
-                  <h2 className="mt-6 font-display text-2xl font-medium">{s.name}</h2>
+                  </Link>
+                  <Link to="/services/$slug" params={{ slug: s.slug }}>
+                    <h2 className="mt-6 font-display text-2xl font-medium transition-colors hover:text-orange">{s.name}</h2>
+                  </Link>
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
                     {s.short}
                   </p>
-                  <div className="mt-5 text-sm font-medium link-underline inline-block w-fit">
-                    Learn more →
+                  <div className="mt-6">
+                    <a
+                      href={waLink(`Hi! I'd like to learn more about the ${s.name} service.`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex w-full items-center justify-center gap-2 border-2 border-orange bg-transparent px-6 py-3 text-sm font-semibold text-orange transition-all duration-300 hover:bg-orange hover:text-white active:scale-95 sm:w-auto"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Learn more
+                    </a>
                   </div>
-                </Link>
+                </div>
               </Reveal>
             ))}
           </div>
