@@ -5,8 +5,8 @@ export const SITE = {
   description:
     "Horizon 7 Company Ltd delivers world-class engineering, fabrication, construction and industrial solutions across Cameroon and Central Africa.",
   email: "info@horizon7companyltd.org",
-  whatsapp: "+237 678 258 919",
-  whatsappRaw: "237678258919",
+  whatsapp: "+237 693 790 123",
+  whatsappRaw: "237693790123",
   address: "Douala, Cameroon",
   hours: "Mon – Fri · 08:00 – 18:00 WAT",
   mapEmbed: "https://www.google.com/maps?q=HORIZON+7+Company+Ltd+Cameroon&output=embed",

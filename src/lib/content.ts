@@ -8,6 +8,28 @@ import craneDusk from "@/assets/crane-dusk.jpg";
 import heatTreatment from "@/assets/heat-treatment.jpg";
 import heavyFleet from "@/assets/heavy-fleet.jpg";
 import civilEng from "@/assets/civil-engineering.jpg";
+import ropeAccess from "@/assets/rope-access.png";
+
+// Fleet gallery images
+import fleet3 from "@/assets/fleet (3).jpg";
+import fleet5 from "@/assets/fleet (5).jpg";
+import fleet6 from "@/assets/fleet (6).jpg";
+import fleet8 from "@/assets/fleet (8).jpg";
+import fleet9 from "@/assets/fleet (9).jpg";
+import fleet10 from "@/assets/fleet (10).jpg";
+import fleet11 from "@/assets/fleet (11).jpg";
+import fleet12 from "@/assets/fleet (12).jpg";
+import fleet14 from "@/assets/fleet (14).jpg";
+import fleet16 from "@/assets/fleet (16).jpg";
+import fleet17 from "@/assets/fleet (17).jpg";
+import fleet19 from "@/assets/fleet (19).jpg";
+import fleet21 from "@/assets/fleet (21).jpg";
+import fleet22 from "@/assets/fleet (22).jpg";
+import fleet23 from "@/assets/fleet (23).jpg";
+import fleet1 from "@/assets/fleet (1).jpg";
+import fleet24 from "@/assets/fleet (24).jpg";
+import fleet25 from "@/assets/fleet (25).jpg";
+import fleet26 from "@/assets/fleet (26).jpg";
 
 export const IMG = {
   heroWelder,
@@ -20,7 +42,27 @@ export const IMG = {
   heatTreatment,
   heavyFleet,
   civilEng,
+  ropeAccess,
 };
+
+/** "Team at Work" gallery — randomized order for visual variety */
+export const TEAM_AT_WORK_GALLERY = [
+  { src: fleet6, alt: "Horizon 7 heavy equipment operations" },
+  { src: fleet21, alt: "Structural steel erection on site" },
+  { src: fleet3, alt: "Industrial fabrication in progress" },
+  { src: fleet19, alt: "Precision engineering works" },
+  { src: fleet11, alt: "Site mobilisation and earthworks" },
+  { src: fleet8, alt: "Heavy machinery deployment" },
+  { src: fleet23, alt: "Large-scale construction project" },
+  { src: fleet14, alt: "Welding and fabrication operations" },
+  { src: fleet5, alt: "Equipment fleet on location" },
+  { src: fleet17, alt: "Civil engineering infrastructure" },
+  { src: fleet9, alt: "Industrial project execution" },
+  { src: fleet22, alt: "On-site crane operations" },
+  { src: fleet12, alt: "Steel structure assembly" },
+  { src: fleet16, alt: "Field engineering works" },
+  { src: fleet10, alt: "Heavy-duty machinery at work" },
+];
 
 export type Service = {
   slug: string;
@@ -177,6 +219,22 @@ export const SERVICES: Service[] = [
       "Certified operators",
     ],
   },
+  {
+    slug: "industrial-rope-access",
+    index: "10",
+    name: "Industrial Rope Access",
+    short: "Certified IRATA at-height engineering, welding & inspection.",
+    description:
+      "Certified IRATA Level 1–3 rope access technicians for high-altitude welding, NDT inspection, structural maintenance, and pipework in tight or elevated industrial environments without heavy scaffolding.",
+    image: ropeAccess,
+    capabilities: [
+      "IRATA / SPRAT certified Level 1-3 technicians",
+      "High-altitude & offshore structural welding",
+      "Non-Destructive Testing (NDT) & flare stack inspection",
+      "Confined space & high-elevation maintenance",
+      "Rapid rigging & zero-ground-footprint deployment",
+    ],
+  },
 ];
 
 export type Project = {
@@ -264,7 +322,7 @@ export type Equipment = {
 export const EQUIPMENT: Equipment[] = [
   {
     slug: "excavators",
-    name: "Excavators",
+    name: "Excavators & Earthmovers",
     category: "Earthmoving",
     specs: [
       { label: "Class", value: "20 – 45 t" },
@@ -272,11 +330,11 @@ export const EQUIPMENT: Equipment[] = [
       { label: "Reach", value: "up to 11 m" },
     ],
     availability: "Available",
-    image: excavator,
+    image: fleet1,
   },
   {
     slug: "bulldozers",
-    name: "Bulldozers",
+    name: "Heavy Duty Bulldozers",
     category: "Earthmoving",
     specs: [
       { label: "Class", value: "D6 – D9" },
@@ -284,7 +342,43 @@ export const EQUIPMENT: Equipment[] = [
       { label: "Blade", value: "SU / U" },
     ],
     availability: "Available",
-    image: heavyFleet,
+    image: fleet26,
+  },
+  {
+    slug: "cranes",
+    name: "Mobile & Tower Cranes",
+    category: "Lifting",
+    specs: [
+      { label: "Capacity", value: "25 – 250 t" },
+      { label: "Type", value: "Mobile / Tower" },
+      { label: "Reach", value: "up to 60 m" },
+    ],
+    availability: "Available",
+    image: fleet24,
+  },
+  {
+    slug: "dump-trucks",
+    name: "Articulated Dump Trucks",
+    category: "Haulage",
+    specs: [
+      { label: "Payload", value: "15 – 40 t" },
+      { label: "Type", value: "Rigid / Articulated" },
+      { label: "Drive", value: "6×4 / 6×6" },
+    ],
+    availability: "Available",
+    image: fleet25,
+  },
+  {
+    slug: "heavy-duty-trucks",
+    name: "Heavy Duty Logistics Trucks",
+    category: "Transport",
+    specs: [
+      { label: "Class", value: "Prime movers" },
+      { label: "Payload", value: "up to 60 t" },
+      { label: "Trailers", value: "Low-loader / Flatbed" },
+    ],
+    availability: "Available",
+    image: fleet25,
   },
   {
     slug: "forklifts",
@@ -323,18 +417,6 @@ export const EQUIPMENT: Equipment[] = [
     image: scaffolding,
   },
   {
-    slug: "cranes",
-    name: "Cranes",
-    category: "Lifting",
-    specs: [
-      { label: "Capacity", value: "25 – 250 t" },
-      { label: "Type", value: "Mobile / Tower" },
-      { label: "Reach", value: "up to 60 m" },
-    ],
-    availability: "On Request",
-    image: craneDusk,
-  },
-  {
     slug: "generators",
     name: "Generators",
     category: "Power",
@@ -342,30 +424,6 @@ export const EQUIPMENT: Equipment[] = [
       { label: "Output", value: "50 – 1,000 kVA" },
       { label: "Fuel", value: "Diesel" },
       { label: "Config", value: "Silent / Open" },
-    ],
-    availability: "Available",
-    image: heavyFleet,
-  },
-  {
-    slug: "dump-trucks",
-    name: "Dump Trucks",
-    category: "Haulage",
-    specs: [
-      { label: "Payload", value: "15 – 40 t" },
-      { label: "Type", value: "Rigid / Articulated" },
-      { label: "Drive", value: "6×4 / 6×6" },
-    ],
-    availability: "Available",
-    image: heavyFleet,
-  },
-  {
-    slug: "heavy-duty-trucks",
-    name: "Heavy Duty Trucks",
-    category: "Transport",
-    specs: [
-      { label: "Class", value: "Prime movers" },
-      { label: "Payload", value: "up to 60 t" },
-      { label: "Trailers", value: "Low-loader / Flatbed" },
     ],
     availability: "Available",
     image: heavyFleet,

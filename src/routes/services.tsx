@@ -19,7 +19,7 @@ export const Route = createFileRoute("/services")({
       {
         property: "og:description",
         content:
-          "Nine integrated industrial engineering services delivered to international standards.",
+          "Ten integrated industrial engineering services delivered to international standards.",
       },
       { property: "og:url", content: "/services" },
     ],
@@ -33,7 +33,7 @@ function ServicesPage() {
     <PageShell>
       <PageHeader
         eyebrow="Capabilities"
-        title="Nine integrated services. One engineering standard."
+        title="Ten integrated services. One engineering standard."
         intro="From coded pipe welding to civil infrastructure and heavy equipment supply, Horizon 7 covers the full industrial delivery chain — engineered, executed and documented to international standards."
       />
 

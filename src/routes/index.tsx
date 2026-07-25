@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import { ArrowRight, Shield, Award, Wrench, Truck, Clock, Sparkles } from "lucide-react";
 
 import { PageShell } from "@/components/PageShell";
@@ -8,7 +8,7 @@ import { CTALink, QuoteButton } from "@/components/CTAButton";
 import { Reveal, RevealImage } from "@/components/Reveal";
 import { StatStrip } from "@/components/StatStrip";
 import { SITE } from "@/lib/site";
-import { IMG, SERVICES, WHY_CHOOSE_US, STATS, TESTIMONIALS, PROJECTS } from "@/lib/content";
+import { IMG, SERVICES, WHY_CHOOSE_US, STATS, TESTIMONIALS, PROJECTS, TEAM_AT_WORK_GALLERY } from "@/lib/content";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -53,6 +53,7 @@ function HomePage() {
       <IntroBand />
       <ServicesTeaser />
       <WhyChooseUs />
+      <TeamAtWork />
       <FeaturedProjects />
       <Testimonials />
       <CTABand />
@@ -66,19 +67,38 @@ function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  const heroImages = [
+    IMG.heroWelder,
+    IMG.civilEng,
+    IMG.craneDusk,
+    IMG.fabricationYard
+  ];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 3000); // 3 seconds each
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section ref={ref} className="relative h-[100svh] min-h-[720px] overflow-hidden bg-foreground">
-      <motion.div style={{ y }} className="absolute inset-0">
-        <motion.img
-          src={IMG.heroWelder}
-          alt="Certified industrial welder performing structural steel welding at a Horizon 7 fabrication yard"
-          className="h-[115%] w-full object-cover"
-          fetchPriority="high"
-          initial={{ scale: 1.0 }}
-          animate={{ scale: 1.05 }}
-          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy/85" />
+      <motion.div style={{ y }} className="absolute inset-0 bg-black">
+        <AnimatePresence>
+          <motion.img
+            key={currentImageIndex}
+            src={heroImages[currentImageIndex]}
+            alt="Horizon 7 industrial engineering and construction in Cameroon"
+            className="absolute inset-0 h-[115%] w-full object-cover"
+            fetchPriority={currentImageIndex === 0 ? "high" : "auto"}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1.0 }}
+            exit={{ opacity: 0 }}
+            transition={{ opacity: { duration: 1.2, ease: "easeInOut" }, scale: { duration: 5, ease: "linear" } }}
+          />
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy/85 pointer-events-none" />
       </motion.div>
 
       <motion.div
@@ -225,7 +245,7 @@ function ServicesTeaser() {
 
         <Reveal delay={0.3} className="mt-12 flex justify-center lg:justify-end">
           <CTALink to="/services" variant="primary">
-            View all nine services
+            View all 10 services
           </CTALink>
         </Reveal>
       </div>
@@ -338,9 +358,20 @@ function Testimonials() {
   return (
     <section className="overflow-hidden bg-background">
       <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
-        <Reveal>
-          <div className="eyebrow">05 — Client Trust</div>
-        </Reveal>
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <Reveal>
+            <div className="eyebrow">05 — Client Trust</div>
+            <h2 className="mt-6 max-w-2xl font-display text-4xl font-medium tracking-[-0.02em] sm:text-5xl lg:text-6xl">
+              Endorsed by industry leaders.
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="inline-flex items-center gap-3 rounded-full border border-hairline bg-muted/80 px-5 py-2.5 text-sm font-medium text-foreground shadow-sm">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-orange animate-pulse" />
+              <span>{TESTIMONIALS.length} Verified Reviews</span>
+            </div>
+          </Reveal>
+        </div>
         
         <div className="mt-16 relative">
           <Carousel
@@ -359,21 +390,21 @@ function Testimonials() {
                   {
                     wrapper: "bg-navy text-white border-transparent",
                     quoteMark: "text-orange/60 group-hover:text-orange",
-                    role: "text-white/60",
+                    role: "text-white/80",
                     border: "border-t border-white/10",
                     glow: "bg-orange/10 group-hover:bg-orange/20"
                   },
                   {
                     wrapper: "bg-orange/5 text-foreground border-orange/10",
                     quoteMark: "text-orange/40 group-hover:text-orange",
-                    role: "text-muted-foreground",
+                    role: "text-foreground/80",
                     border: "border-t border-orange/20",
                     glow: "bg-orange/10 group-hover:bg-orange/20"
                   },
                   {
                     wrapper: "bg-muted/50 text-foreground border-hairline",
                     quoteMark: "text-orange/30 group-hover:text-orange",
-                    role: "text-muted-foreground",
+                    role: "text-foreground/80",
                     border: "hairline-top",
                     glow: "bg-orange/5 group-hover:bg-orange/15"
                   },
@@ -391,8 +422,7 @@ function Testimonials() {
                           {t.quote}
                         </blockquote>
                         <div className={`mt-8 pt-6 ${s.border}`}>
-                          <div className="font-medium">{t.author}</div>
-                          <div className={`text-sm ${s.role}`}>{t.role}</div>
+                          <div className={`text-sm font-medium ${s.role}`}>{t.role}</div>
                         </div>
                       </div>
                     </div>
@@ -411,6 +441,158 @@ function Testimonials() {
               <CarouselNext className="static translate-y-0 h-12 w-12 border-hairline hover:bg-orange hover:text-white" />
             </div>
           </Carousel>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEAM AT WORK — Premium immersive photo gallery
+   Two-row infinite marquee + staggered masonry grid
+   ═══════════════════════════════════════════════════════ */
+
+function TeamAtWork() {
+  // Split gallery into two rows for the marquee
+  const row1 = TEAM_AT_WORK_GALLERY.slice(0, 8);
+  const row2 = TEAM_AT_WORK_GALLERY.slice(8, 15);
+
+  // 6 featured picks for the masonry grid (hand-picked for best visual variety)
+  const masonryPicks = [
+    TEAM_AT_WORK_GALLERY[0],  // fleet6
+    TEAM_AT_WORK_GALLERY[1],  // fleet21
+    TEAM_AT_WORK_GALLERY[6],  // fleet23
+    TEAM_AT_WORK_GALLERY[3],  // fleet19
+    TEAM_AT_WORK_GALLERY[7],  // fleet14
+    TEAM_AT_WORK_GALLERY[10], // fleet9
+  ];
+
+  // Grid layout: alternating tall and wide cells
+  const gridSpans = [
+    "md:col-span-2 md:row-span-2",  // large
+    "md:col-span-1 md:row-span-1",  // small
+    "md:col-span-1 md:row-span-2",  // tall
+    "md:col-span-1 md:row-span-1",  // small
+    "md:col-span-2 md:row-span-1",  // wide
+    "md:col-span-1 md:row-span-1",  // small
+  ];
+
+  return (
+    <section className="relative overflow-hidden bg-navy text-white">
+      {/* Engineering grid background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+      {/* Ambient glow orbs */}
+      <div className="absolute right-[-10%] top-[10%] h-[500px] w-[500px] rounded-full bg-orange/8 blur-[150px]" />
+      <div className="absolute left-[-10%] bottom-[10%] h-[400px] w-[400px] rounded-full bg-orange/5 blur-[120px]" />
+
+      <div className="relative z-10 py-24 lg:py-32">
+        {/* ── Section Header ── */}
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-10">
+          <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+            <Reveal>
+              <div className="eyebrow flex items-center gap-3 text-white/60">
+                <span className="h-px w-8 bg-orange" />
+                The Team at Work
+              </div>
+              <h2 className="mt-6 max-w-3xl font-display text-4xl font-medium tracking-[-0.02em] sm:text-5xl lg:text-6xl">
+                Precision in action.
+                <br />
+                <span className="text-orange">Every project, every day.</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.15}>
+              <p className="max-w-md text-base leading-relaxed text-white/60 lg:text-lg">
+                From heavy-lift crane operations to coded welding — a glimpse into the discipline, scale and craftsmanship that define Horizon 7.
+              </p>
+            </Reveal>
+          </div>
+        </div>
+
+        {/* ── Infinite Marquee Row 1 ── */}
+        <div className="mt-16 overflow-hidden">
+          <div className="marquee-track gap-4">
+            {[...row1, ...row1].map((img, i) => (
+              <div
+                key={`r1-${i}`}
+                className="group relative h-[220px] w-[340px] flex-shrink-0 overflow-hidden sm:h-[260px] sm:w-[400px] lg:h-[300px] lg:w-[460px]"
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute inset-0 border-2 border-orange/0 transition-all duration-500 group-hover:border-orange/40" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Infinite Marquee Row 2 (Reverse) ── */}
+        <div className="mt-4 overflow-hidden">
+          <div className="marquee-track-reverse gap-4">
+            {[...row2, ...row2].map((img, i) => (
+              <div
+                key={`r2-${i}`}
+                className="group relative h-[220px] w-[340px] flex-shrink-0 overflow-hidden sm:h-[260px] sm:w-[400px] lg:h-[300px] lg:w-[460px]"
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute inset-0 border-2 border-orange/0 transition-all duration-500 group-hover:border-orange/40" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Premium Masonry Grid ── */}
+        <div className="mx-auto mt-16 max-w-[1440px] px-6 lg:mt-24 lg:px-10">
+          <Reveal>
+            <div className="flex items-center gap-4">
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="eyebrow text-white/40">Featured Moments</span>
+              <div className="h-px flex-1 bg-white/10" />
+            </div>
+          </Reveal>
+
+          <div className="mt-10 grid auto-rows-[200px] grid-cols-1 gap-3 md:grid-cols-4 md:auto-rows-[180px] lg:auto-rows-[220px] lg:gap-4">
+            {masonryPicks.map((img, i) => (
+              <Reveal key={`masonry-${i}`} delay={i * 0.08}>
+                <motion.div
+                  className={`group relative h-full w-full overflow-hidden ${gridSpans[i]}`}
+                  whileHover={{ y: -6 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                >
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
+                  />
+                  {/* Hover overlay with orange glow */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-navy/20 to-transparent opacity-40 transition-opacity duration-500 group-hover:opacity-70" />
+                  <div className="absolute inset-0 bg-orange/0 mix-blend-overlay transition-all duration-500 group-hover:bg-orange/15" />
+
+                  {/* Bottom accent bar */}
+                  <div className="absolute inset-x-0 bottom-0 h-1 bg-orange scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
+
+                  {/* Index label */}
+                  <div className="absolute bottom-4 left-4 flex items-center gap-2 opacity-0 transition-all duration-500 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0">
+                    <div className="h-px w-4 bg-orange" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                </motion.div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>

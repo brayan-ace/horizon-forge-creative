@@ -27,7 +27,7 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Contact Horizon 7 Company Ltd. WhatsApp +237 678 258 919 · info@hashtagnexasmartai.org. Douala, Cameroon.",
+          "Contact Horizon 7 Company Ltd. WhatsApp +237 693 790 123 · info@horizon7companyltd.org. Douala, Cameroon.",
       },
       { property: "og:title", content: "Contact Horizon 7 Company Ltd" },
       {
