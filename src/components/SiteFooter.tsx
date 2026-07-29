@@ -2,8 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { SITE, mailLink, waLink } from "@/lib/site";
 import { MessageCircle, Mail, MapPin } from "lucide-react";
+import { useSiteSettings } from "../routes/__root";
 
 export function SiteFooter() {
+  const settings = useSiteSettings();
+  const whatsappUrl = settings?.whatsappRaw ? `https://wa.me/${settings.whatsappRaw}` : waLink();
+  const emailUrl = settings?.email ? `mailto:${settings.email}` : mailLink();
   return (
     <footer className="bg-navy text-white">
       <div className="mx-auto max-w-[1440px] px-6 py-20 lg:px-10 lg:py-24">
@@ -11,11 +15,11 @@ export function SiteFooter() {
           <div className="lg:col-span-4">
             <Logo variant="light" />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/70">
-              {SITE.description}
+              {settings?.description || SITE.description}
             </p>
             <div className="mt-8 flex gap-3">
               <a
-                href={waLink()}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex h-11 w-11 items-center justify-center border border-white/20 transition hover:border-orange hover:text-orange"
@@ -24,7 +28,7 @@ export function SiteFooter() {
                 <MessageCircle className="h-5 w-5" />
               </a>
               <a
-                href={mailLink()}
+                href={emailUrl}
                 className="inline-flex h-11 w-11 items-center justify-center border border-white/20 transition hover:border-orange hover:text-orange"
                 aria-label="Email"
               >
@@ -94,32 +98,32 @@ export function SiteFooter() {
             <div className="eyebrow text-white/50">Contact</div>
             <ul className="mt-5 space-y-4 text-sm">
               <li>
-                <a href={mailLink()} className="text-white/80 hover:text-orange">
-                  {SITE.email}
+                <a href={emailUrl} className="text-white/80 hover:text-orange">
+                  {settings?.email || SITE.email}
                 </a>
               </li>
               <li>
                 <a
-                  href={waLink()}
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white/80 hover:text-orange"
                 >
-                  {SITE.whatsapp}
+                  {settings?.whatsapp || SITE.whatsapp}
                 </a>
               </li>
               <li className="flex items-start gap-2 text-white/80">
                 <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                <span>{SITE.address}</span>
+                <span>{settings?.address || SITE.address}</span>
               </li>
-              <li className="text-white/60">{SITE.hours}</li>
+              <li className="text-white/60">{settings?.hours || SITE.hours}</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/50 md:flex-row md:items-center">
           <div>
-            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+            © {new Date().getFullYear()} {settings?.name || SITE.name}. All rights reserved.
           </div>
           <div className="flex items-center gap-6">
             <span className="eyebrow text-white/40">Cameroon · Central Africa</span>

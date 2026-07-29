@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, MapPin, Clock, ArrowRight } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { SITE, mailLink, waLink } from "@/lib/site";
 import { SERVICES } from "@/lib/content";
 import { CTAButton } from "@/components/CTAButton";
+import { client } from "@/sanityclient";
+import { useSiteSettings } from "./__root";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -55,12 +57,29 @@ export const Route = createFileRoute("/contact")({
 });
 
 function ContactPage() {
+  const [pageData, setPageData] = useState<any>(null);
+  const settings = useSiteSettings();
+  
+  const whatsappUrl = settings?.whatsappRaw ? `https://wa.me/${settings.whatsappRaw}` : waLink();
+  const emailUrl = settings?.email ? `mailto:${settings.email}` : mailLink();
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "contactPage"][0]{ pageEyebrow, pageTitle, pageIntro }`)
+      .then(setPageData)
+      .catch(console.error);
+  }, []);
+
+  const pageEyebrow = pageData?.pageEyebrow ?? "Contact";
+  const pageTitle = pageData?.pageTitle ?? "Speak to our engineering team.";
+  const pageIntro = pageData?.pageIntro ?? "Share your project scope, timeline and location. We reply to every enquiry within one working day, and mobilize where the work is.";
+
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Contact"
-        title="Speak to our engineering team."
-        intro="Share your project scope, timeline and location. We reply to every enquiry within one working day, and mobilize where the work is."
+        eyebrow={pageEyebrow}
+        title={pageTitle}
+        intro={pageIntro}
         variant="dark"
       />
 
@@ -80,7 +99,7 @@ function ContactPage() {
                   <div className="eyebrow text-orange">Direct Channels</div>
                   <div className="mt-8 space-y-4">
                     <a
-                      href={waLink()}
+                      href={whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex items-center justify-between border border-white/10 bg-white/5 p-5 transition-colors hover:bg-white/10"
@@ -93,14 +112,14 @@ function ContactPage() {
                           <div className="text-xs uppercase tracking-[0.14em] text-white/60">
                             WhatsApp
                           </div>
-                          <div className="mt-1 font-medium text-white">{SITE.whatsapp}</div>
+                          <div className="mt-1 font-medium text-white">{settings?.whatsapp || SITE.whatsapp}</div>
                         </div>
                       </div>
                       <ArrowRight className="h-5 w-5 text-white/50 transition-transform group-hover:translate-x-1 group-hover:text-white" />
                     </a>
 
                     <a
-                      href={mailLink()}
+                      href={emailUrl}
                       className="group flex items-center justify-between border border-white/10 bg-white/5 p-5 transition-colors hover:bg-white/10"
                     >
                       <div className="flex items-center gap-4">
@@ -111,7 +130,7 @@ function ContactPage() {
                           <div className="text-xs uppercase tracking-[0.14em] text-white/60">
                             Email
                           </div>
-                          <div className="mt-1 break-all font-medium text-white">{SITE.email}</div>
+                          <div className="mt-1 break-all font-medium text-white">{settings?.email || SITE.email}</div>
                         </div>
                       </div>
                       <ArrowRight className="h-5 w-5 text-white/50 transition-transform group-hover:translate-x-1 group-hover:text-white" />
@@ -125,7 +144,7 @@ function ContactPage() {
                         <div className="text-xs uppercase tracking-[0.14em] text-white/60">
                           Office
                         </div>
-                        <div className="mt-1.5 leading-relaxed text-white/90">{SITE.address}</div>
+                        <div className="mt-1.5 leading-relaxed text-white/90">{settings?.address || SITE.address}</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
@@ -134,7 +153,7 @@ function ContactPage() {
                         <div className="text-xs uppercase tracking-[0.14em] text-white/60">
                           Office Hours
                         </div>
-                        <div className="mt-1.5 leading-relaxed text-white/90">{SITE.hours}</div>
+                        <div className="mt-1.5 leading-relaxed text-white/90">{settings?.hours || SITE.hours}</div>
                         <div className="mt-1 text-sm text-white/60">
                           Quick response · within one working day.
                         </div>
@@ -158,7 +177,7 @@ function ContactPage() {
               </h2>
             </div>
             <a
-              href={SITE.mapLink}
+              href={settings?.mapLink || SITE.mapLink}
               target="_blank"
               rel="noopener noreferrer"
               className="link-underline hidden text-sm font-medium sm:inline-block"
@@ -168,7 +187,7 @@ function ContactPage() {
           </div>
           <div className="relative aspect-[16/9] w-full overflow-hidden border border-hairline bg-background">
             <iframe
-              src={SITE.mapEmbed}
+              src={settings?.mapEmbed || SITE.mapEmbed}
               title="Horizon 7 Company Ltd — office location on Google Maps"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
@@ -192,6 +211,20 @@ function ContactForm() {
     service: "",
     message: "",
   });
+  const settings = useSiteSettings();
+
+  const [services, setServices] = useState<any[]>([]);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "service"] | order(index asc) { name }`)
+      .then((res: any[]) => {
+        if (res && res.length > 0) setServices(res);
+      })
+      .catch(console.error);
+  }, []);
+
+  const serviceList = services.length > 0 ? services : SERVICES;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -205,7 +238,11 @@ function ContactForm() {
       ``,
       form.message,
     ].join("\n");
-    window.location.href = mailLink(subject, body);
+    const emailToUse = settings?.email || SITE.email;
+    const params = new URLSearchParams();
+    params.set("subject", subject);
+    params.set("body", body);
+    window.location.href = `mailto:${emailToUse}?${params.toString()}`;
     setSent(true);
   }
 
@@ -252,8 +289,8 @@ function ContactForm() {
           className="w-full border border-hairline bg-background px-4 py-3.5 text-[15px] text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-foreground focus:shadow-[0_0_0_3px_oklch(0.19_0.03_258_/_0.08)]"
         >
           <option value="">Select a service</option>
-          {SERVICES.map((s) => (
-            <option key={s.slug} value={s.name}>
+          {serviceList.map((s: any) => (
+            <option key={s.name} value={s.name}>
               {s.name}
             </option>
           ))}

@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { useQuote } from "./QuoteDialog";
 import { SITE, mailLink, waLink } from "@/lib/site";
+import { useSiteSettings } from "../routes/__root";
 
 const menuVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -45,6 +46,11 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { open: openQuote } = useQuote();
+  const settings = useSiteSettings();
+
+  const navigation = settings?.navigation?.length ? settings.navigation : NAV;
+  const whatsappUrl = settings?.whatsappRaw ? `https://wa.me/${settings.whatsappRaw}` : waLink();
+  const emailUrl = settings?.email ? `mailto:${settings.email}` : mailLink();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -80,7 +86,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
         <Logo variant={solid ? "dark" : "light"} />
 
         <nav className="hidden items-center gap-9 lg:flex">
-          {NAV.map((item) => (
+          {navigation.map((item: any) => (
             <Link
               key={item.to}
               to={item.to}
@@ -148,7 +154,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             {/* Immersive Navigation */}
             <div className="flex flex-1 flex-col justify-center px-8 pb-20">
               <nav className="flex flex-col space-y-4">
-                {NAV.map((item) => (
+                {navigation.map((item: any) => (
                   <motion.div key={item.to} variants={itemVariants}>
                     <Link
                       to={item.to}
@@ -176,7 +182,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
               {/* Direct Channels Footer */}
               <motion.div variants={itemVariants} className="mt-12 flex items-center gap-6">
                 <a
-                  href={waLink()}
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium text-white/60 transition-colors hover:text-white"
@@ -185,7 +191,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 </a>
                 <span className="h-1 w-1 rounded-full bg-white/20" />
                 <a
-                  href={mailLink()}
+                  href={emailUrl}
                   className="text-sm font-medium text-white/60 transition-colors hover:text-white"
                 >
                   Email Us

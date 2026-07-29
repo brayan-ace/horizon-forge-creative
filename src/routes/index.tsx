@@ -9,6 +9,7 @@ import { Reveal, RevealImage } from "@/components/Reveal";
 import { StatStrip } from "@/components/StatStrip";
 import { SITE } from "@/lib/site";
 import { IMG, SERVICES, WHY_CHOOSE_US, STATS, TESTIMONIALS, PROJECTS, TEAM_AT_WORK_GALLERY } from "@/lib/content";
+import { client, urlFor } from "@/sanityclient";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -67,20 +68,37 @@ function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const heroImages = [
-    IMG.heroWelder,
-    IMG.civilEng,
-    IMG.craneDusk,
-    IMG.fabricationYard
-  ];
+  // Fallback to local images
+  const fallbackImages = [IMG.heroWelder, IMG.civilEng, IMG.craneDusk, IMG.fabricationYard];
+
+  const [data, setData] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "hero"][0]{ eyebrow, headingLine1, headingLine2, headingLine3, subtitle, ctaLabel1, ctaLabel2, heroImages[]{ asset->{_id, url}, alt } }`)
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  const heroImages = data?.heroImages?.length
+    ? data.heroImages.map((img: any) => urlFor(img).width(1920).quality(80).url())
+    : fallbackImages;
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 3000); // 3 seconds each
+    }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages.length]);
+
+  const eyebrow = data?.eyebrow ?? "01 — Horizon 7 Company Ltd";
+  const h1Line1 = data?.headingLine1 ?? "Engineering Excellence.";
+  const h1Line2 = data?.headingLine2 ?? "Industrial Precision.";
+  const h1Line3 = data?.headingLine3 ?? "Built for Tomorrow.";
+  const subtitle = data?.subtitle ?? SITE.description;
+  const cta1 = data?.ctaLabel1 ?? "Explore Services";
+  const cta2 = data?.ctaLabel2 ?? "Request a Quote";
 
   return (
     <section ref={ref} className="relative h-[100svh] min-h-[720px] overflow-hidden bg-foreground">
@@ -106,28 +124,28 @@ function Hero() {
         className="relative z-10 mx-auto flex h-full max-w-[1440px] flex-col items-center justify-center px-6 pb-24 pt-32 text-center lg:px-10 lg:pb-32"
       >
         <Reveal delay={0.1}>
-          <div className="eyebrow text-orange mt-12">01 — Horizon 7 Company Ltd</div>
+          <div className="eyebrow text-orange mt-12">{eyebrow}</div>
         </Reveal>
         <Reveal delay={0.2}>
           <h1 className="mt-6 max-w-5xl font-display text-[clamp(2.5rem,7vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.03em] text-white">
-            Engineering Excellence.
+            {h1Line1}
             <br />
-            Industrial Precision.
+            {h1Line2}
             <br />
-            <span className="text-orange">Built for Tomorrow.</span>
+            <span className="text-orange">{h1Line3}</span>
           </h1>
         </Reveal>
         <Reveal delay={0.35}>
           <p className="mt-8 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-            {SITE.description}
+            {subtitle}
           </p>
         </Reveal>
         <Reveal delay={0.5}>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <CTALink to="/services" variant="outline-light">
-              Explore Services
+              {cta1}
             </CTALink>
-            <QuoteButton variant="primary" className="min-w-[240px] justify-center">Request a Quote</QuoteButton>
+            <QuoteButton variant="primary" className="min-w-[240px] justify-center">{cta2}</QuoteButton>
           </div>
         </Reveal>
       </motion.div>
@@ -141,6 +159,21 @@ function Hero() {
 }
 
 function IntroBand() {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "introBand"][0]{ eyebrow, heading, paragraph1, paragraph2, linkText }`)
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  const eyebrow = data?.eyebrow ?? "About";
+  const heading = data?.heading ?? "A Cameroonian engineering firm building to international standards.";
+  const p1 = data?.paragraph1 ?? "Horizon 7 Company Ltd is an industrial engineering and construction firm delivering coded welding, precision fabrication, civil works and heavy equipment services to refineries, power plants, mines and government infrastructure programs across Central Africa.";
+  const p2 = data?.paragraph2 ?? "Our discipline is engineering-led. Every scope is planned, executed and handed over with the documentation, safety record and quality control our clients expect from world-class contractors.";
+  const linkText = data?.linkText ?? "Read our story";
+
   return (
     <section className="relative overflow-hidden bg-navy text-white">
       {/* Subtle Engineering Grid Background */}
@@ -162,10 +195,10 @@ function IntroBand() {
 
             <div className="eyebrow flex items-center gap-3">
               <span className="h-px w-6 bg-orange" />
-              About
+              {eyebrow}
             </div>
             <h2 className="mt-8 font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-6xl">
-              A Cameroonian engineering firm building to international standards.
+              {heading}
             </h2>
           </Reveal>
 
@@ -175,15 +208,10 @@ function IntroBand() {
               <div className="absolute left-0 top-0 h-full w-1.5 bg-orange" />
 
               <p className="text-lg leading-relaxed text-muted-foreground">
-                Horizon 7 Company Ltd is an industrial engineering and construction firm delivering
-                coded welding, precision fabrication, civil works and heavy equipment services to
-                refineries, power plants, mines and government infrastructure programs across
-                Central Africa.
+                {p1}
               </p>
               <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                Our discipline is engineering-led. Every scope is planned, executed and handed over
-                with the documentation, safety record and quality control our clients expect from
-                world-class contractors.
+                {p2}
               </p>
 
               <div className="mt-10">
@@ -191,7 +219,7 @@ function IntroBand() {
                   to="/about"
                   className="group inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-orange"
                 >
-                  Read our story
+                  {linkText}
                   <span className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
               </div>
@@ -204,7 +232,21 @@ function IntroBand() {
 }
 
 function ServicesTeaser() {
-  const highlight = SERVICES.slice(0, 3);
+  const [services, setServices] = useState<any[]>([]);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "service"] | order(index asc) { _id, index, name, "slug": slug.current, short, image{ asset->{_id, url}, alt } }`)
+      .then((res: any[]) => {
+        if (res && res.length > 0) setServices(res);
+      })
+      .catch(console.error);
+  }, []);
+
+  const displayServices = services.length > 0 ? services : SERVICES;
+  const highlight = displayServices.slice(0, 3);
+  const isSanity = services.length > 0;
+
   return (
     <section className="bg-muted/50">
       <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
@@ -218,34 +260,47 @@ function ServicesTeaser() {
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {highlight.map((s, i) => (
-            <Reveal key={s.slug} delay={i * 0.1}>
-              <Link to="/services/$slug" params={{ slug: s.slug }} className="group block">
-                <div className="relative overflow-hidden bg-foreground aspect-[4/5]">
-                  <RevealImage
-                    src={s.image}
-                    alt={s.name}
-                    aspect="aspect-[4/5]"
-                    hoverZoom={true}
-                    priority={i === 0}
-                    className="absolute inset-0 h-full w-full"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-6">
-                    <div className="eyebrow text-orange">{s.index}</div>
-                    <ArrowRight className="h-5 w-5 text-white transition-transform group-hover:translate-x-1" />
+          {highlight.map((s: any, i: number) => {
+            const slug = isSanity ? s.slug : s.slug;
+            const imgSrc = isSanity && s.image?.asset ? urlFor(s.image).width(800).quality(80).url() : s.image;
+            return (
+              <Reveal key={slug} delay={i * 0.1}>
+                <Link to="/services/$slug" params={{ slug }} className="group block">
+                  <div className="relative overflow-hidden bg-foreground aspect-[4/5]">
+                    {isSanity ? (
+                      <img
+                        src={imgSrc}
+                        alt={s.image?.alt || s.name}
+                        loading={i === 0 ? "eager" : "lazy"}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                      />
+                    ) : (
+                      <RevealImage
+                        src={imgSrc}
+                        alt={s.name}
+                        aspect="aspect-[4/5]"
+                        hoverZoom={true}
+                        priority={i === 0}
+                        className="absolute inset-0 h-full w-full"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-6">
+                      <div className="eyebrow text-orange">{s.index}</div>
+                      <ArrowRight className="h-5 w-5 text-white transition-transform group-hover:translate-x-1" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mt-6 font-display text-2xl font-medium">{s.name}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.short}</p>
-              </Link>
-            </Reveal>
-          ))}
+                  <h3 className="mt-6 font-display text-2xl font-medium">{s.name}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.short}</p>
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
 
         <Reveal delay={0.3} className="mt-12 flex justify-center lg:justify-end">
           <CTALink to="/services" variant="primary">
-            View all 10 services
+            View all {displayServices.length} services
           </CTALink>
         </Reveal>
       </div>
@@ -254,6 +309,19 @@ function ServicesTeaser() {
 }
 
 function WhyChooseUs() {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "whyChooseUs"][0]{ eyebrow, heading, items[]{ index, title, body } }`)
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  const eyebrow = data?.eyebrow ?? "03 — Why Horizon 7";
+  const heading = data?.heading ?? "Six commitments we deliver on every project.";
+  const items = data?.items?.length ? data.items : WHY_CHOOSE_US;
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/80">
       {/* Subtle Oversized Watermark */}
@@ -265,14 +333,14 @@ function WhyChooseUs() {
       </div>
       <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
         <Reveal className="relative z-10">
-          <div className="eyebrow">03 — Why Horizon 7</div>
+          <div className="eyebrow">{eyebrow}</div>
           <h2 className="mt-6 max-w-3xl font-display text-4xl font-medium tracking-[-0.02em] text-orange sm:text-5xl lg:text-6xl">
-            Six commitments we deliver on every project.
+            {heading}
           </h2>
         </Reveal>
 
         <div className="relative z-10 mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {WHY_CHOOSE_US.map((item, i) => {
+          {items.map((item: any, i: number) => {
             const Icon = ICON_MAP[i] ?? Award;
             return (
               <Reveal key={item.index} delay={i * 0.06} className="h-full">
@@ -309,7 +377,21 @@ function WhyChooseUs() {
 }
 
 function FeaturedProjects() {
-  const featured = PROJECTS.slice(0, 3);
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "project"] | order(_createdAt asc) { _id, name, "slug": slug.current, category, location, status, description, image{ asset->{_id, url}, alt } }`)
+      .then((res: any[]) => {
+        if (res && res.length > 0) setProjects(res);
+      })
+      .catch(console.error);
+  }, []);
+
+  const displayProjects = projects.length > 0 ? projects : PROJECTS;
+  const featured = displayProjects.slice(0, 3);
+  const isSanity = projects.length > 0;
+
   return (
     <section className="bg-navy text-white">
       <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
@@ -331,19 +413,34 @@ function FeaturedProjects() {
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {featured.map((p, i) => (
-            <Reveal key={p.slug} delay={i * 0.1}>
-              <div className="group">
-                <RevealImage src={p.image} alt={p.name} aspect="aspect-[4/5]" />
-                <div className="mt-6 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-white/60">
-                  <span>{p.category}</span>
-                  <span>{p.location}</span>
+          {featured.map((p: any, i: number) => {
+            const imgSrc = isSanity && p.image?.asset ? urlFor(p.image).width(800).quality(80).url() : p.image;
+            const slug = isSanity ? p.slug : p.slug;
+            return (
+              <Reveal key={slug} delay={i * 0.1}>
+                <div className="group">
+                  {isSanity ? (
+                    <div className="relative overflow-hidden aspect-[4/5]">
+                      <img
+                        src={imgSrc}
+                        alt={p.image?.alt || p.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                      />
+                    </div>
+                  ) : (
+                    <RevealImage src={imgSrc} alt={p.name} aspect="aspect-[4/5]" />
+                  )}
+                  <div className="mt-6 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-white/60">
+                    <span>{p.category}</span>
+                    <span>{p.location}</span>
+                  </div>
+                  <h3 className="mt-4 font-display text-2xl font-medium">{p.name}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/70">{p.description}</p>
                 </div>
-                <h3 className="mt-4 font-display text-2xl font-medium">{p.name}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/70">{p.description}</p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -354,6 +451,19 @@ function Testimonials() {
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
+
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "testimonial"] | order(_createdAt asc) { _id, quote, author, role }`)
+      .then((res: any[]) => {
+        if (res && res.length > 0) setTestimonials(res);
+      })
+      .catch(console.error);
+  }, []);
+
+  const displayTestimonials = testimonials.length > 0 ? testimonials : TESTIMONIALS;
 
   return (
     <section className="overflow-hidden bg-background">
@@ -368,7 +478,7 @@ function Testimonials() {
           <Reveal delay={0.1}>
             <div className="inline-flex items-center gap-3 rounded-full border border-hairline bg-muted/80 px-5 py-2.5 text-sm font-medium text-foreground shadow-sm">
               <span className="flex h-2.5 w-2.5 rounded-full bg-orange animate-pulse" />
-              <span>{TESTIMONIALS.length} Verified Reviews</span>
+              <span>{displayTestimonials.length} Verified Reviews</span>
             </div>
           </Reveal>
         </div>
@@ -385,7 +495,7 @@ function Testimonials() {
             onMouseLeave={plugin.current.reset}
           >
             <CarouselContent className="-ml-4 md:-ml-6">
-              {TESTIMONIALS.map((t, i) => {
+              {displayTestimonials.map((t: any, i: number) => {
                 const styles = [
                   {
                     wrapper: "bg-navy text-white border-transparent",
@@ -412,7 +522,7 @@ function Testimonials() {
                 const s = styles[i % styles.length];
 
                 return (
-                  <CarouselItem key={i} className="pl-4 md:pl-6 md:basis-1/2 xl:basis-1/3">
+                  <CarouselItem key={t._id || i} className="pl-4 md:pl-6 md:basis-1/2 xl:basis-1/3">
                     <div className={`group relative h-full overflow-hidden border p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl sm:p-10 ${s.wrapper}`}>
                       <div className="absolute inset-x-0 top-0 h-1 bg-transparent transition-colors duration-300 group-hover:bg-orange" />
                       <div className={`absolute -right-8 -bottom-8 h-32 w-32 rounded-full blur-2xl transition-all duration-700 group-hover:scale-[2.5] ${s.glow}`} />
@@ -453,19 +563,43 @@ function Testimonials() {
    ═══════════════════════════════════════════════════════ */
 
 function TeamAtWork() {
-  // Split gallery into two rows for the marquee
-  const row1 = TEAM_AT_WORK_GALLERY.slice(0, 8);
-  const row2 = TEAM_AT_WORK_GALLERY.slice(8, 15);
+  const [data, setData] = useState<any>(null);
 
-  // 6 featured picks for the masonry grid (hand-picked for best visual variety)
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "teamGallery"][0]{ eyebrow, heading, headingHighlight, description, images[]{ asset->{_id, url}, alt } }`)
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  const isSanity = data?.images?.length > 0;
+
+  // Build gallery items: Sanity images or fallback to local
+  const galleryItems = isSanity
+    ? data.images.map((img: any) => ({
+        src: urlFor(img).width(920).quality(80).url(),
+        alt: img.alt || "Horizon 7 team at work",
+      }))
+    : TEAM_AT_WORK_GALLERY;
+
+  const eyebrow = data?.eyebrow ?? "The Team at Work";
+  const heading = data?.heading ?? "Precision in action.";
+  const headingHighlight = data?.headingHighlight ?? "Every project, every day.";
+  const description = data?.description ?? "From heavy-lift crane operations to coded welding — a glimpse into the discipline, scale and craftsmanship that define Horizon 7.";
+
+  // Split gallery into two rows for the marquee
+  const row1 = galleryItems.slice(0, 8);
+  const row2 = galleryItems.slice(8, 15);
+
+  // 6 featured picks for the masonry grid
   const masonryPicks = [
-    TEAM_AT_WORK_GALLERY[0],  // fleet6
-    TEAM_AT_WORK_GALLERY[1],  // fleet21
-    TEAM_AT_WORK_GALLERY[6],  // fleet23
-    TEAM_AT_WORK_GALLERY[3],  // fleet19
-    TEAM_AT_WORK_GALLERY[7],  // fleet14
-    TEAM_AT_WORK_GALLERY[10], // fleet9
-  ];
+    galleryItems[0],
+    galleryItems[1],
+    galleryItems[6] || galleryItems[2],
+    galleryItems[3],
+    galleryItems[7] || galleryItems[4],
+    galleryItems[10] || galleryItems[5],
+  ].filter(Boolean);
 
   // Grid layout: alternating tall and wide cells
   const gridSpans = [
@@ -493,17 +627,17 @@ function TeamAtWork() {
             <Reveal>
               <div className="eyebrow flex items-center gap-3 text-white/60">
                 <span className="h-px w-8 bg-orange" />
-                The Team at Work
+                {eyebrow}
               </div>
               <h2 className="mt-6 max-w-3xl font-display text-4xl font-medium tracking-[-0.02em] sm:text-5xl lg:text-6xl">
-                Precision in action.
+                {heading}
                 <br />
-                <span className="text-orange">Every project, every day.</span>
+                <span className="text-orange">{headingHighlight}</span>
               </h2>
             </Reveal>
             <Reveal delay={0.15}>
               <p className="max-w-md text-base leading-relaxed text-white/60 lg:text-lg">
-                From heavy-lift crane operations to coded welding — a glimpse into the discipline, scale and craftsmanship that define Horizon 7.
+                {description}
               </p>
             </Reveal>
           </div>
@@ -512,7 +646,7 @@ function TeamAtWork() {
         {/* ── Infinite Marquee Row 1 ── */}
         <div className="mt-16 overflow-hidden">
           <div className="marquee-track gap-4">
-            {[...row1, ...row1].map((img, i) => (
+            {[...row1, ...row1].map((img: any, i: number) => (
               <div
                 key={`r1-${i}`}
                 className="group relative h-[220px] w-[340px] flex-shrink-0 overflow-hidden sm:h-[260px] sm:w-[400px] lg:h-[300px] lg:w-[460px]"
@@ -533,7 +667,7 @@ function TeamAtWork() {
         {/* ── Infinite Marquee Row 2 (Reverse) ── */}
         <div className="mt-4 overflow-hidden">
           <div className="marquee-track-reverse gap-4">
-            {[...row2, ...row2].map((img, i) => (
+            {[...row2, ...row2].map((img: any, i: number) => (
               <div
                 key={`r2-${i}`}
                 className="group relative h-[220px] w-[340px] flex-shrink-0 overflow-hidden sm:h-[260px] sm:w-[400px] lg:h-[300px] lg:w-[460px]"
@@ -562,7 +696,7 @@ function TeamAtWork() {
           </Reveal>
 
           <div className="mt-10 grid auto-rows-[200px] grid-cols-1 gap-3 md:grid-cols-4 md:auto-rows-[180px] lg:auto-rows-[220px] lg:gap-4">
-            {masonryPicks.map((img, i) => (
+            {masonryPicks.map((img: any, i: number) => (
               <Reveal key={`masonry-${i}`} delay={i * 0.08}>
                 <motion.div
                   className={`group relative h-full w-full overflow-hidden ${gridSpans[i]}`}
@@ -600,10 +734,25 @@ function TeamAtWork() {
 }
 
 function CTABand() {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    client
+      .fetch(`*[_type == "ctaBand"][0]{ heading, paragraph, ctaLabel1, ctaLabel2, backgroundImage{ asset->{_id, url} } }`)
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  const heading = data?.heading ?? "Ready to build with precision?";
+  const paragraph = data?.paragraph ?? "Speak to our engineering team. Share your scope, timeline and location — we'll come back within one working day.";
+  const cta1 = data?.ctaLabel1 ?? "Request a Quote";
+  const cta2 = data?.ctaLabel2 ?? "Contact Us";
+  const bgImage = data?.backgroundImage?.asset ? urlFor(data.backgroundImage).width(1920).quality(80).url() : IMG.craneDusk;
+
   return (
     <section className="relative overflow-hidden bg-navy text-white">
       <img
-        src={IMG.craneDusk}
+        src={bgImage}
         alt=""
         aria-hidden
         loading="lazy"
@@ -615,20 +764,19 @@ function CTABand() {
           <div className="mb-8 h-px w-16 bg-orange" />
           <Reveal>
             <h2 className="font-display text-4xl font-medium tracking-[-0.02em] sm:text-5xl lg:text-6xl">
-              Ready to build with precision?
+              {heading}
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-6 max-w-xl text-lg text-white/70">
-              Speak to our engineering team. Share your scope, timeline and location — we'll come
-              back within one working day.
+              {paragraph}
             </p>
           </Reveal>
           <Reveal delay={0.2}>
             <div className="mt-10 flex flex-wrap gap-4">
-              <QuoteButton variant="primary">Request a Quote</QuoteButton>
+              <QuoteButton variant="primary">{cta1}</QuoteButton>
               <CTALink to="/contact" variant="outline-light">
-                Contact Us
+                {cta2}
               </CTALink>
             </div>
           </Reveal>

@@ -15,6 +15,13 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { QuoteProvider } from "../components/QuoteDialog";
 import { SITE } from "../lib/site";
+import { client } from "../sanityclient";
+import { createContext, useContext, useState } from "react";
+
+export const SiteSettingsContext = createContext<any>(null);
+export function useSiteSettings() {
+  return useContext(SiteSettingsContext);
+}
 
 function NotFoundComponent() {
   return (
@@ -165,22 +172,37 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const location = useLocation();
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    client.fetch(`*[_type == "siteSettings"][0]`).then((data) => {
+      setSettings(data);
+      if (data?.primaryColor) {
+        document.documentElement.style.setProperty('--orange', data.primaryColor);
+      }
+      if (data?.secondaryColor) {
+        document.documentElement.style.setProperty('--navy', data.secondaryColor);
+      }
+    }).catch(console.error);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <QuoteProvider>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
-      </QuoteProvider>
+      <SiteSettingsContext.Provider value={settings}>
+        <QuoteProvider>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
+        </QuoteProvider>
+      </SiteSettingsContext.Provider>
     </QueryClientProvider>
   );
 }

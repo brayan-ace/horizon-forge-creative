@@ -1,22 +1,23 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { QuoteButton, CTALink } from "@/components/CTAButton";
 import { SERVICES } from "@/lib/content";
+import { client, urlFor } from "@/sanityclient";
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
     const service = SERVICES.find((s) => s.slug === params.slug);
-    if (!service) throw notFound();
-    return { service };
+    // Allow even if not found locally — Sanity might have it
+    return { service: service || null, slug: params.slug };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!loaderData?.service) {
       return {
         meta: [
-          { title: "Service not found — Horizon 7 Company Ltd" },
-          { name: "robots", content: "noindex" },
+          { title: "Service — Horizon 7 Company Ltd" },
         ],
       };
     }
@@ -37,15 +38,60 @@ export const Route = createFileRoute("/services/$slug")({
 });
 
 function ServiceDetail() {
-  const { service } = Route.useLoaderData();
-  const others = SERVICES.filter((s) => s.slug !== service.slug).slice(0, 3);
+  const { service: localService, slug } = Route.useLoaderData();
+
+  const [sanityService, setSanityService] = useState<any>(null);
+  const [otherServices, setOtherServices] = useState<any[]>([]);
+
+  useEffect(() => {
+    client
+      .fetch(
+        `*[_type == "service" && slug.current == $slug][0]{ _id, index, name, "slug": slug.current, short, description, image{ asset->{_id, url}, alt }, capabilities }`,
+        { slug }
+      )
+      .then(setSanityService)
+      .catch(console.error);
+
+    client
+      .fetch(
+        `*[_type == "service" && slug.current != $slug] | order(index asc) [0...3] { _id, index, name, "slug": slug.current, image{ asset->{_id, url}, alt } }`,
+        { slug }
+      )
+      .then((res: any[]) => {
+        if (res && res.length > 0) setOtherServices(res);
+      })
+      .catch(console.error);
+  }, [slug]);
+
+  const service = sanityService || localService;
+  const isSanity = !!sanityService;
+
+  if (!service) {
+    return (
+      <PageShell>
+        <div className="mx-auto max-w-[1440px] px-6 py-32 text-center">
+          <h1 className="font-display text-4xl font-medium">Service not found</h1>
+        </div>
+      </PageShell>
+    );
+  }
+
+  const imgSrc = isSanity && service.image?.asset
+    ? urlFor(service.image).width(1200).quality(80).url()
+    : service.image;
+  const imgAlt = isSanity ? (service.image?.alt || service.name) : service.name;
+
+  const others = otherServices.length > 0
+    ? otherServices
+    : SERVICES.filter((s) => s.slug !== (service.slug || slug)).slice(0, 3);
+  const othersIsSanity = otherServices.length > 0;
 
   return (
     <PageShell>
       <section className="relative h-[70svh] min-h-[520px] overflow-hidden bg-foreground">
         <img
-          src={service.image}
-          alt={service.name}
+          src={imgSrc}
+          alt={imgAlt}
           className="h-full w-full object-cover"
           fetchPriority="high"
         />
@@ -78,7 +124,7 @@ function ServiceDetail() {
             <Reveal delay={0.15} className="lg:col-span-5">
               <div className="eyebrow">Capabilities</div>
               <ul className="mt-6 space-y-4">
-                {service.capabilities.map((c: string) => (
+                {(service.capabilities || []).map((c: string) => (
                   <li key={c} className="flex items-start gap-3 border-b border-hairline pb-4">
                     <Check className="mt-1 h-5 w-5 flex-shrink-0 text-orange" strokeWidth={2} />
                     <span className="text-base">{c}</span>
@@ -101,29 +147,36 @@ function ServiceDetail() {
             </div>
           </div>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {others.map((s) => (
-              <Link
-                key={s.slug}
-                to="/services/$slug"
-                params={{ slug: s.slug }}
-                className="group block"
-              >
-                <div className="relative overflow-hidden bg-foreground aspect-[4/5]">
-                  <img
-                    src={s.image}
-                    alt={s.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy/70 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-6">
-                    <div className="eyebrow text-orange">{s.index}</div>
-                    <ArrowRight className="h-5 w-5 text-white" />
+            {others.map((s: any) => {
+              const otherSlug = othersIsSanity ? s.slug : s.slug;
+              const otherImg = othersIsSanity && s.image?.asset
+                ? urlFor(s.image).width(800).quality(80).url()
+                : s.image;
+              const otherAlt = othersIsSanity ? (s.image?.alt || s.name) : s.name;
+              return (
+                <Link
+                  key={otherSlug}
+                  to="/services/$slug"
+                  params={{ slug: otherSlug }}
+                  className="group block"
+                >
+                  <div className="relative overflow-hidden bg-foreground aspect-[4/5]">
+                    <img
+                      src={otherImg}
+                      alt={otherAlt}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy/70 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-6">
+                      <div className="eyebrow text-orange">{s.index}</div>
+                      <ArrowRight className="h-5 w-5 text-white" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mt-4 font-display text-xl font-medium">{s.name}</h3>
-              </Link>
-            ))}
+                  <h3 className="mt-4 font-display text-xl font-medium">{s.name}</h3>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
