@@ -1,5 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { setCookie, deleteCookie } from "@tanstack/start-server-core";
 
 export const Route = createFileRoute("/api/preview")({
   loader: async ({ location }) => {
@@ -9,17 +8,34 @@ export const Route = createFileRoute("/api/preview")({
     const slug = search.slug || "/";
 
     const expectedSecret =
-      process.env.SANITY_PREVIEW_SECRET ||
-      process.env.VITE_SANITY_PREVIEW_SECRET ||
+      (typeof process !== "undefined" &&
+        process.env &&
+        (process.env.SANITY_PREVIEW_SECRET || process.env.VITE_SANITY_PREVIEW_SECRET)) ||
       "horizon7-preview-secret-2026";
 
-    // Disable preview mode
+    // Client-side environment
+    if (typeof window !== "undefined") {
+      if (disable === "true" || disable === "1") {
+        document.cookie = "sanity_preview=; path=/; max-age=0";
+        throw redirect({ href: slug });
+      }
+
+      if (secret === expectedSecret) {
+        document.cookie = "sanity_preview=true; path=/; max-age=86400; SameSite=Lax";
+        throw redirect({ href: slug });
+      }
+
+      throw redirect({ href: slug });
+    }
+
+    // Server-side environment
+    const { setCookie, deleteCookie } = await import("@tanstack/start-server-core");
+
     if (disable === "true" || disable === "1") {
       deleteCookie("sanity_preview", { path: "/" });
       throw redirect({ href: slug });
     }
 
-    // Validate secret
     if (secret !== expectedSecret) {
       throw new Response(JSON.stringify({ message: "Invalid preview secret" }), {
         status: 401,
@@ -27,7 +43,6 @@ export const Route = createFileRoute("/api/preview")({
       });
     }
 
-    // Enable preview mode
     setCookie("sanity_preview", "true", {
       path: "/",
       sameSite: "lax",
