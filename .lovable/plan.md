@@ -1,4 +1,3 @@
-
 # Horizon 7 Company Ltd — Premium Industrial Engineering Website
 
 A multi-page corporate site built to feel like a global engineering firm (Fluor / Bechtel / Vinci tier) — white-dominant, deep-navy structure, industrial-orange accents, oversized editorial typography, and generous whitespace. Everything routed properly (no hash-anchor navigation) so each section is a shareable page with its own SEO metadata.
@@ -42,6 +41,7 @@ Shared `<SiteHeader>` (transparent → solid white with border on scroll, using 
 ## Page compositions
 
 **Home**
+
 1. Hero — full-viewport photo (welder in sparks), navy 40% overlay, headline "Engineering Excellence. Industrial Precision. Built for Tomorrow." set in Fraunces at ~6rem, supporting paragraph, primary CTA "Request a Quote" (opens `<QuoteDialog>` — WhatsApp / Email choice), secondary "Explore Services". Scroll cue.
 2. Intro strip — three animated stat counters (Years of Experience, Projects Delivered, Skilled Workforce) with editorial numerals.
 3. Services teaser — 3 flagship cards linking to `/services`.

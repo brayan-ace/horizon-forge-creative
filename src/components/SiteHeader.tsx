@@ -77,57 +77,57 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
     <>
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        solid
-          ? "border-b border-hairline bg-background/95 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent"
-      }`}
-    >
-      <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 lg:px-10">
-        <Logo variant={solid ? "dark" : "light"} />
+          solid
+            ? "border-b border-hairline bg-background/95 backdrop-blur-md"
+            : "border-b border-transparent bg-transparent"
+        }`}
+      >
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 lg:px-10">
+          <Logo variant={solid ? "dark" : "light"} />
 
-        <nav className="hidden items-center gap-9 lg:flex">
-          {navigation.map((item: any) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`text-sm font-medium transition-colors link-underline ${
-                solid ? "text-foreground hover:text-orange" : "text-white/90 hover:text-white"
+          <nav className="hidden items-center gap-9 lg:flex">
+            {navigation.map((item: { to: string; label: string }) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`text-sm font-medium transition-colors link-underline ${
+                  solid ? "text-foreground hover:text-orange" : "text-white/90 hover:text-white"
+                }`}
+                activeProps={{
+                  className: `text-orange after:scale-x-100 ${solid ? "after:bg-orange" : "after:bg-orange"}`,
+                }}
+                activeOptions={{ exact: item.to === "/" }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden lg:block">
+            <button
+              onClick={() => openQuote()}
+              className={`group inline-flex items-center gap-3 border px-5 py-3 text-sm font-medium transition-all active:scale-[0.98] ${
+                solid
+                  ? "border-foreground bg-foreground text-background hover:border-orange hover:bg-orange"
+                  : "border-white bg-transparent text-white hover:bg-white hover:text-foreground"
               }`}
-              activeProps={{
-                className: `text-orange after:scale-x-100 ${solid ? "after:bg-orange" : "after:bg-orange"}`,
-              }}
-              activeOptions={{ exact: item.to === "/" }}
             >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+              Request a Quote
+              <span aria-hidden className="transition-transform group-hover:translate-x-1">
+                →
+              </span>
+            </button>
+          </div>
 
-        <div className="hidden lg:block">
           <button
-            onClick={() => openQuote()}
-            className={`group inline-flex items-center gap-3 border px-5 py-3 text-sm font-medium transition-all active:scale-[0.98] ${
-              solid
-                ? "border-foreground bg-foreground text-background hover:border-orange hover:bg-orange"
-                : "border-white bg-transparent text-white hover:bg-white hover:text-foreground"
-            }`}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-sm bg-navy text-white shadow-lg transition-all active:scale-[0.98] lg:hidden"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
           >
-            Request a Quote
-            <span aria-hidden className="transition-transform group-hover:translate-x-1">
-              →
-            </span>
+            <Menu className="h-6 w-6" />
           </button>
         </div>
-
-        <button
-          className="inline-flex h-12 w-12 items-center justify-center rounded-sm bg-navy text-white shadow-lg transition-all active:scale-[0.98] lg:hidden"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-          aria-expanded={mobileOpen}
-        >
-          <Menu className="h-6 w-6" />
-        </button>
-      </div>
       </header>
 
       <AnimatePresence>
@@ -154,7 +154,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             {/* Immersive Navigation */}
             <div className="flex flex-1 flex-col justify-center px-8 pb-20">
               <nav className="flex flex-col space-y-4">
-                {navigation.map((item: any) => (
+                {navigation.map((item: { to: string; label: string }) => (
                   <motion.div key={item.to} variants={itemVariants}>
                     <Link
                       to={item.to}

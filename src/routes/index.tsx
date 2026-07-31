@@ -8,8 +8,16 @@ import { CTALink, QuoteButton } from "@/components/CTAButton";
 import { Reveal, RevealImage } from "@/components/Reveal";
 import { StatStrip } from "@/components/StatStrip";
 import { SITE } from "@/lib/site";
-import { IMG, SERVICES, WHY_CHOOSE_US, STATS, TESTIMONIALS, PROJECTS, TEAM_AT_WORK_GALLERY } from "@/lib/content";
-import { client, urlFor } from "@/sanityclient";
+import {
+  IMG,
+  SERVICES,
+  WHY_CHOOSE_US,
+  TESTIMONIALS,
+  PROJECTS,
+  TEAM_AT_WORK_GALLERY,
+} from "@/lib/content";
+import { urlFor } from "@/sanityclient/index";
+import { useSanityQuery } from "@/hooks/useSanityQuery";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -71,18 +79,15 @@ function Hero() {
   // Fallback to local images
   const fallbackImages = [IMG.heroWelder, IMG.civilEng, IMG.craneDusk, IMG.fabricationYard];
 
-  const [data, setData] = useState<any>(null);
+  const { data } = useSanityQuery(
+    `*[_type == "hero"][0]{ eyebrow, headingLine1, headingLine2, headingLine3, subtitle, ctaLabel1, ctaLabel2, heroImages[]{ asset->{_id, url}, alt } }`,
+  );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "hero"][0]{ eyebrow, headingLine1, headingLine2, headingLine3, subtitle, ctaLabel1, ctaLabel2, heroImages[]{ asset->{_id, url}, alt } }`)
-      .then(setData)
-      .catch(console.error);
-  }, []);
-
   const heroImages = data?.heroImages?.length
-    ? data.heroImages.map((img: any) => urlFor(img).width(1920).quality(80).url())
+    ? data.heroImages.map((img: Record<string, unknown>) =>
+        urlFor(img).width(1920).quality(80).url(),
+      )
     : fallbackImages;
 
   useEffect(() => {
@@ -113,7 +118,10 @@ function Hero() {
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1.0 }}
             exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 1.2, ease: "easeInOut" }, scale: { duration: 5, ease: "linear" } }}
+            transition={{
+              opacity: { duration: 1.2, ease: "easeInOut" },
+              scale: { duration: 5, ease: "linear" },
+            }}
           />
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-navy/60 via-navy/40 to-navy/85 pointer-events-none" />
@@ -145,7 +153,9 @@ function Hero() {
             <CTALink to="/services" variant="outline-light">
               {cta1}
             </CTALink>
-            <QuoteButton variant="primary" className="min-w-[240px] justify-center">{cta2}</QuoteButton>
+            <QuoteButton variant="primary" className="min-w-[240px] justify-center">
+              {cta2}
+            </QuoteButton>
           </div>
         </Reveal>
       </motion.div>
@@ -159,19 +169,19 @@ function Hero() {
 }
 
 function IntroBand() {
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "introBand"][0]{ eyebrow, heading, paragraph1, paragraph2, linkText }`)
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  const { data } = useSanityQuery(
+    `*[_type == "introBand"][0]{ eyebrow, heading, paragraph1, paragraph2, linkText }`,
+  );
 
   const eyebrow = data?.eyebrow ?? "About";
-  const heading = data?.heading ?? "A Cameroonian engineering firm building to international standards.";
-  const p1 = data?.paragraph1 ?? "Horizon 7 Company Ltd is an industrial engineering and construction firm delivering coded welding, precision fabrication, civil works and heavy equipment services to refineries, power plants, mines and government infrastructure programs across Central Africa.";
-  const p2 = data?.paragraph2 ?? "Our discipline is engineering-led. Every scope is planned, executed and handed over with the documentation, safety record and quality control our clients expect from world-class contractors.";
+  const heading =
+    data?.heading ?? "A Cameroonian engineering firm building to international standards.";
+  const p1 =
+    data?.paragraph1 ??
+    "Horizon 7 Company Ltd is an industrial engineering and construction firm delivering coded welding, precision fabrication, civil works and heavy equipment services to refineries, power plants, mines and government infrastructure programs across Central Africa.";
+  const p2 =
+    data?.paragraph2 ??
+    "Our discipline is engineering-led. Every scope is planned, executed and handed over with the documentation, safety record and quality control our clients expect from world-class contractors.";
   const linkText = data?.linkText ?? "Read our story";
 
   return (
@@ -207,12 +217,8 @@ function IntroBand() {
             <div className="relative border border-hairline bg-background p-8 text-foreground shadow-sm sm:p-10 lg:p-14">
               <div className="absolute left-0 top-0 h-full w-1.5 bg-orange" />
 
-              <p className="text-lg leading-relaxed text-muted-foreground">
-                {p1}
-              </p>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                {p2}
-              </p>
+              <p className="text-lg leading-relaxed text-muted-foreground">{p1}</p>
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{p2}</p>
 
               <div className="mt-10">
                 <Link
@@ -232,17 +238,11 @@ function IntroBand() {
 }
 
 function ServicesTeaser() {
-  const [services, setServices] = useState<any[]>([]);
+  const { data: fetchedServices } = useSanityQuery(
+    `*[_type == "service"] | order(index asc) { _id, index, name, "slug": slug.current, short, image{ asset->{_id, url}, alt } }`,
+  );
 
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "service"] | order(index asc) { _id, index, name, "slug": slug.current, short, image{ asset->{_id, url}, alt } }`)
-      .then((res: any[]) => {
-        if (res && res.length > 0) setServices(res);
-      })
-      .catch(console.error);
-  }, []);
-
+  const services = Array.isArray(fetchedServices) ? fetchedServices : [];
   const displayServices = services.length > 0 ? services : SERVICES;
   const highlight = displayServices.slice(0, 3);
   const isSanity = services.length > 0;
@@ -260,9 +260,12 @@ function ServicesTeaser() {
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {highlight.map((s: any, i: number) => {
-            const slug = isSanity ? s.slug : s.slug;
-            const imgSrc = isSanity && s.image?.asset ? urlFor(s.image).width(800).quality(80).url() : s.image;
+          {highlight.map((s: Record<string, unknown>, i: number) => {
+            const slug = (s.slug as string) || "";
+            const imgSrc =
+              isSanity && (s.image as { asset?: unknown })?.asset
+                ? urlFor(s.image).width(800).quality(80).url()
+                : (s.image as string);
             return (
               <Reveal key={slug} delay={i * 0.1}>
                 <Link to="/services/$slug" params={{ slug }} className="group block">
@@ -270,14 +273,14 @@ function ServicesTeaser() {
                     {isSanity ? (
                       <img
                         src={imgSrc}
-                        alt={s.image?.alt || s.name}
+                        alt={(s.image as { alt?: string })?.alt || (s.name as string)}
                         loading={i === 0 ? "eager" : "lazy"}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
                       />
                     ) : (
                       <RevealImage
                         src={imgSrc}
-                        alt={s.name}
+                        alt={s.name as string}
                         aspect="aspect-[4/5]"
                         hoverZoom={true}
                         priority={i === 0}
@@ -286,12 +289,14 @@ function ServicesTeaser() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-6">
-                      <div className="eyebrow text-orange">{s.index}</div>
+                      <div className="eyebrow text-orange">{s.index as string}</div>
                       <ArrowRight className="h-5 w-5 text-white transition-transform group-hover:translate-x-1" />
                     </div>
                   </div>
-                  <h3 className="mt-6 font-display text-2xl font-medium">{s.name}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.short}</p>
+                  <h3 className="mt-6 font-display text-2xl font-medium">{s.name as string}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {s.short as string}
+                  </p>
                 </Link>
               </Reveal>
             );
@@ -309,14 +314,9 @@ function ServicesTeaser() {
 }
 
 function WhyChooseUs() {
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "whyChooseUs"][0]{ eyebrow, heading, items[]{ index, title, body } }`)
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  const { data } = useSanityQuery(
+    `*[_type == "whyChooseUs"][0]{ eyebrow, heading, items[]{ index, title, body } }`,
+  );
 
   const eyebrow = data?.eyebrow ?? "03 — Why Horizon 7";
   const heading = data?.heading ?? "Six commitments we deliver on every project.";
@@ -340,10 +340,10 @@ function WhyChooseUs() {
         </Reveal>
 
         <div className="relative z-10 mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {items.map((item: any, i: number) => {
+          {items.map((item: Record<string, unknown>, i: number) => {
             const Icon = ICON_MAP[i] ?? Award;
             return (
-              <Reveal key={item.index} delay={i * 0.06} className="h-full">
+              <Reveal key={(item.index as string) || i} delay={i * 0.06} className="h-full">
                 <div className="group relative h-full overflow-hidden border border-hairline bg-background p-8 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:p-10">
                   {/* Decorative Top Accent Line */}
                   <div className="absolute inset-x-0 top-0 h-1 bg-transparent transition-colors duration-300 group-hover:bg-orange" />
@@ -356,14 +356,14 @@ function WhyChooseUs() {
                       <Icon className="h-6 w-6 text-orange" strokeWidth={1.5} />
                     </div>
                     <div className="eyebrow text-muted-foreground transition-colors group-hover:text-foreground">
-                      {item.index}
+                      {item.index as string}
                     </div>
                   </div>
 
                   <div className="relative z-10 mt-12">
-                    <h3 className="font-display text-2xl font-medium">{item.title}</h3>
+                    <h3 className="font-display text-2xl font-medium">{item.title as string}</h3>
                     <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                      {item.body}
+                      {item.body as string}
                     </p>
                   </div>
                 </div>
@@ -377,17 +377,11 @@ function WhyChooseUs() {
 }
 
 function FeaturedProjects() {
-  const [projects, setProjects] = useState<any[]>([]);
+  const { data: fetchedProjects } = useSanityQuery(
+    `*[_type == "project"] | order(_createdAt asc) { _id, name, "slug": slug.current, category, location, status, description, image{ asset->{_id, url}, alt } }`,
+  );
 
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "project"] | order(_createdAt asc) { _id, name, "slug": slug.current, category, location, status, description, image{ asset->{_id, url}, alt } }`)
-      .then((res: any[]) => {
-        if (res && res.length > 0) setProjects(res);
-      })
-      .catch(console.error);
-  }, []);
-
+  const projects = Array.isArray(fetchedProjects) ? fetchedProjects : [];
   const displayProjects = projects.length > 0 ? projects : PROJECTS;
   const featured = displayProjects.slice(0, 3);
   const isSanity = projects.length > 0;
@@ -413,30 +407,35 @@ function FeaturedProjects() {
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {featured.map((p: any, i: number) => {
-            const imgSrc = isSanity && p.image?.asset ? urlFor(p.image).width(800).quality(80).url() : p.image;
-            const slug = isSanity ? p.slug : p.slug;
+          {featured.map((p: Record<string, unknown>, i: number) => {
+            const imgSrc =
+              isSanity && (p.image as { asset?: unknown })?.asset
+                ? urlFor(p.image).width(800).quality(80).url()
+                : (p.image as string);
+            const slug = (p.slug as string) || "";
             return (
-              <Reveal key={slug} delay={i * 0.1}>
+              <Reveal key={slug || i} delay={i * 0.1}>
                 <div className="group">
                   {isSanity ? (
                     <div className="relative overflow-hidden aspect-[4/5]">
                       <img
                         src={imgSrc}
-                        alt={p.image?.alt || p.name}
+                        alt={(p.image as { alt?: string })?.alt || (p.name as string)}
                         loading="lazy"
                         className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
                       />
                     </div>
                   ) : (
-                    <RevealImage src={imgSrc} alt={p.name} aspect="aspect-[4/5]" />
+                    <RevealImage src={imgSrc} alt={p.name as string} aspect="aspect-[4/5]" />
                   )}
                   <div className="mt-6 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-white/60">
-                    <span>{p.category}</span>
-                    <span>{p.location}</span>
+                    <span>{p.category as string}</span>
+                    <span>{p.location as string}</span>
                   </div>
-                  <h3 className="mt-4 font-display text-2xl font-medium">{p.name}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/70">{p.description}</p>
+                  <h3 className="mt-4 font-display text-2xl font-medium">{p.name as string}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/70">
+                    {p.description as string}
+                  </p>
                 </div>
               </Reveal>
             );
@@ -448,21 +447,13 @@ function FeaturedProjects() {
 }
 
 function Testimonials() {
-  const plugin = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true })
+  const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
+
+  const { data: fetchedTestimonials } = useSanityQuery(
+    `*[_type == "testimonial"] | order(_createdAt asc) { _id, quote, author, role }`,
   );
 
-  const [testimonials, setTestimonials] = useState<any[]>([]);
-
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "testimonial"] | order(_createdAt asc) { _id, quote, author, role }`)
-      .then((res: any[]) => {
-        if (res && res.length > 0) setTestimonials(res);
-      })
-      .catch(console.error);
-  }, []);
-
+  const testimonials = Array.isArray(fetchedTestimonials) ? fetchedTestimonials : [];
   const displayTestimonials = testimonials.length > 0 ? testimonials : TESTIMONIALS;
 
   return (
@@ -482,7 +473,7 @@ function Testimonials() {
             </div>
           </Reveal>
         </div>
-        
+
         <div className="mt-16 relative">
           <Carousel
             opts={{
@@ -495,44 +486,55 @@ function Testimonials() {
             onMouseLeave={plugin.current.reset}
           >
             <CarouselContent className="-ml-4 md:-ml-6">
-              {displayTestimonials.map((t: any, i: number) => {
+              {displayTestimonials.map((t: Record<string, unknown>, i: number) => {
                 const styles = [
                   {
                     wrapper: "bg-navy text-white border-transparent",
                     quoteMark: "text-orange/60 group-hover:text-orange",
                     role: "text-white/80",
                     border: "border-t border-white/10",
-                    glow: "bg-orange/10 group-hover:bg-orange/20"
+                    glow: "bg-orange/10 group-hover:bg-orange/20",
                   },
                   {
                     wrapper: "bg-orange/5 text-foreground border-orange/10",
                     quoteMark: "text-orange/40 group-hover:text-orange",
                     role: "text-foreground/80",
                     border: "border-t border-orange/20",
-                    glow: "bg-orange/10 group-hover:bg-orange/20"
+                    glow: "bg-orange/10 group-hover:bg-orange/20",
                   },
                   {
                     wrapper: "bg-muted/50 text-foreground border-hairline",
                     quoteMark: "text-orange/30 group-hover:text-orange",
                     role: "text-foreground/80",
                     border: "hairline-top",
-                    glow: "bg-orange/5 group-hover:bg-orange/15"
+                    glow: "bg-orange/5 group-hover:bg-orange/15",
                   },
                 ];
                 const s = styles[i % styles.length];
 
                 return (
-                  <CarouselItem key={t._id || i} className="pl-4 md:pl-6 md:basis-1/2 xl:basis-1/3">
-                    <div className={`group relative h-full overflow-hidden border p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl sm:p-10 ${s.wrapper}`}>
+                  <CarouselItem
+                    key={(t._id as string) || i}
+                    className="pl-4 md:pl-6 md:basis-1/2 xl:basis-1/3"
+                  >
+                    <div
+                      className={`group relative h-full overflow-hidden border p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-xl sm:p-10 ${s.wrapper}`}
+                    >
                       <div className="absolute inset-x-0 top-0 h-1 bg-transparent transition-colors duration-300 group-hover:bg-orange" />
-                      <div className={`absolute -right-8 -bottom-8 h-32 w-32 rounded-full blur-2xl transition-all duration-700 group-hover:scale-[2.5] ${s.glow}`} />
+                      <div
+                        className={`absolute -right-8 -bottom-8 h-32 w-32 rounded-full blur-2xl transition-all duration-700 group-hover:scale-[2.5] ${s.glow}`}
+                      />
                       <div className="relative z-10 flex h-full flex-col">
-                        <div className={`font-display text-6xl transition-colors duration-300 ${s.quoteMark}`}>"</div>
+                        <div
+                          className={`font-display text-6xl transition-colors duration-300 ${s.quoteMark}`}
+                        >
+                          "
+                        </div>
                         <blockquote className="mt-2 flex-grow font-display text-xl font-medium leading-snug tracking-[-0.01em] sm:text-2xl">
-                          {t.quote}
+                          {t.quote as string}
                         </blockquote>
                         <div className={`mt-8 pt-6 ${s.border}`}>
-                          <div className={`text-sm font-medium ${s.role}`}>{t.role}</div>
+                          <div className={`text-sm font-medium ${s.role}`}>{t.role as string}</div>
                         </div>
                       </div>
                     </div>
@@ -540,7 +542,7 @@ function Testimonials() {
                 );
               })}
             </CarouselContent>
-            
+
             <div className="hidden xl:block">
               <CarouselPrevious className="absolute -left-5 top-1/2 -translate-y-1/2 h-12 w-12 hover:bg-orange hover:text-white" />
               <CarouselNext className="absolute -right-5 top-1/2 -translate-y-1/2 h-12 w-12 hover:bg-orange hover:text-white" />
@@ -563,29 +565,27 @@ function Testimonials() {
    ═══════════════════════════════════════════════════════ */
 
 function TeamAtWork() {
-  const [data, setData] = useState<any>(null);
+  const { data } = useSanityQuery(
+    `*[_type == "teamGallery"][0]{ eyebrow, heading, headingHighlight, description, images[]{ asset->{_id, url}, alt } }`,
+  );
 
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "teamGallery"][0]{ eyebrow, heading, headingHighlight, description, images[]{ asset->{_id, url}, alt } }`)
-      .then(setData)
-      .catch(console.error);
-  }, []);
-
-  const isSanity = data?.images?.length > 0;
+  const images = (data?.images as Array<Record<string, unknown>>) || [];
+  const isSanity = images.length > 0;
 
   // Build gallery items: Sanity images or fallback to local
   const galleryItems = isSanity
-    ? data.images.map((img: any) => ({
+    ? images.map((img: Record<string, unknown>) => ({
         src: urlFor(img).width(920).quality(80).url(),
-        alt: img.alt || "Horizon 7 team at work",
+        alt: (img.alt as string) || "Horizon 7 team at work",
       }))
     : TEAM_AT_WORK_GALLERY;
 
   const eyebrow = data?.eyebrow ?? "The Team at Work";
   const heading = data?.heading ?? "Precision in action.";
   const headingHighlight = data?.headingHighlight ?? "Every project, every day.";
-  const description = data?.description ?? "From heavy-lift crane operations to coded welding — a glimpse into the discipline, scale and craftsmanship that define Horizon 7.";
+  const description =
+    data?.description ??
+    "From heavy-lift crane operations to coded welding — a glimpse into the discipline, scale and craftsmanship that define Horizon 7.";
 
   // Split gallery into two rows for the marquee
   const row1 = galleryItems.slice(0, 8);
@@ -603,12 +603,12 @@ function TeamAtWork() {
 
   // Grid layout: alternating tall and wide cells
   const gridSpans = [
-    "md:col-span-2 md:row-span-2",  // large
-    "md:col-span-1 md:row-span-1",  // small
-    "md:col-span-1 md:row-span-2",  // tall
-    "md:col-span-1 md:row-span-1",  // small
-    "md:col-span-2 md:row-span-1",  // wide
-    "md:col-span-1 md:row-span-1",  // small
+    "md:col-span-2 md:row-span-2", // large
+    "md:col-span-1 md:row-span-1", // small
+    "md:col-span-1 md:row-span-2", // tall
+    "md:col-span-1 md:row-span-1", // small
+    "md:col-span-2 md:row-span-1", // wide
+    "md:col-span-1 md:row-span-1", // small
   ];
 
   return (
@@ -646,7 +646,7 @@ function TeamAtWork() {
         {/* ── Infinite Marquee Row 1 ── */}
         <div className="mt-16 overflow-hidden">
           <div className="marquee-track gap-4">
-            {[...row1, ...row1].map((img: any, i: number) => (
+            {[...row1, ...row1].map((img: { src: string; alt: string }, i: number) => (
               <div
                 key={`r1-${i}`}
                 className="group relative h-[220px] w-[340px] flex-shrink-0 overflow-hidden sm:h-[260px] sm:w-[400px] lg:h-[300px] lg:w-[460px]"
@@ -667,7 +667,7 @@ function TeamAtWork() {
         {/* ── Infinite Marquee Row 2 (Reverse) ── */}
         <div className="mt-4 overflow-hidden">
           <div className="marquee-track-reverse gap-4">
-            {[...row2, ...row2].map((img: any, i: number) => (
+            {[...row2, ...row2].map((img: { src: string; alt: string }, i: number) => (
               <div
                 key={`r2-${i}`}
                 className="group relative h-[220px] w-[340px] flex-shrink-0 overflow-hidden sm:h-[260px] sm:w-[400px] lg:h-[300px] lg:w-[460px]"
@@ -696,7 +696,7 @@ function TeamAtWork() {
           </Reveal>
 
           <div className="mt-10 grid auto-rows-[200px] grid-cols-1 gap-3 md:grid-cols-4 md:auto-rows-[180px] lg:auto-rows-[220px] lg:gap-4">
-            {masonryPicks.map((img: any, i: number) => (
+            {masonryPicks.map((img: { src: string; alt: string }, i: number) => (
               <Reveal key={`masonry-${i}`} delay={i * 0.08}>
                 <motion.div
                   className={`group relative h-full w-full overflow-hidden ${gridSpans[i]}`}
@@ -734,20 +734,19 @@ function TeamAtWork() {
 }
 
 function CTABand() {
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "ctaBand"][0]{ heading, paragraph, ctaLabel1, ctaLabel2, backgroundImage{ asset->{_id, url} } }`)
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  const { data } = useSanityQuery(
+    `*[_type == "ctaBand"][0]{ heading, paragraph, ctaLabel1, ctaLabel2, backgroundImage{ asset->{_id, url} } }`,
+  );
 
   const heading = data?.heading ?? "Ready to build with precision?";
-  const paragraph = data?.paragraph ?? "Speak to our engineering team. Share your scope, timeline and location — we'll come back within one working day.";
+  const paragraph =
+    data?.paragraph ??
+    "Speak to our engineering team. Share your scope, timeline and location — we'll come back within one working day.";
   const cta1 = data?.ctaLabel1 ?? "Request a Quote";
   const cta2 = data?.ctaLabel2 ?? "Contact Us";
-  const bgImage = data?.backgroundImage?.asset ? urlFor(data.backgroundImage).width(1920).quality(80).url() : IMG.craneDusk;
+  const bgImage = data?.backgroundImage?.asset
+    ? urlFor(data.backgroundImage).width(1920).quality(80).url()
+    : IMG.craneDusk;
 
   return (
     <section className="relative overflow-hidden bg-navy text-white">
@@ -768,9 +767,7 @@ function CTABand() {
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="mt-6 max-w-xl text-lg text-white/70">
-              {paragraph}
-            </p>
+            <p className="mt-6 max-w-xl text-lg text-white/70">{paragraph}</p>
           </Reveal>
           <Reveal delay={0.2}>
             <div className="mt-10 flex flex-wrap gap-4">

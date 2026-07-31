@@ -1,11 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { QuoteButton, CTALink } from "@/components/CTAButton";
 import { SERVICES } from "@/lib/content";
-import { client, urlFor } from "@/sanityclient";
+import { urlFor } from "@/sanityclient/index";
+import { useSanityQuery } from "@/hooks/useSanityQuery";
 
 export const Route = createFileRoute("/services/$slug")({
   loader: ({ params }) => {
@@ -16,9 +16,7 @@ export const Route = createFileRoute("/services/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData?.service) {
       return {
-        meta: [
-          { title: "Service — Horizon 7 Company Ltd" },
-        ],
+        meta: [{ title: "Service — Horizon 7 Company Ltd" }],
       };
     }
     const s = loaderData.service;
@@ -37,33 +35,34 @@ export const Route = createFileRoute("/services/$slug")({
   component: ServiceDetail,
 });
 
+interface ServiceItem {
+  _id?: string;
+  index?: string;
+  name?: string;
+  slug?: string;
+  short?: string;
+  description?: string;
+  image?: { asset?: unknown; alt?: string } | string;
+  capabilities?: string[];
+}
+
 function ServiceDetail() {
   const { service: localService, slug } = Route.useLoaderData();
 
-  const [sanityService, setSanityService] = useState<any>(null);
-  const [otherServices, setOtherServices] = useState<any[]>([]);
+  const { data: sanityService } = useSanityQuery(
+    `*[_type == "service" && slug.current == $slug][0]{ _id, index, name, "slug": slug.current, short, description, image{ asset->{_id, url}, alt }, capabilities }`,
+    { slug },
+  );
 
-  useEffect(() => {
-    client
-      .fetch(
-        `*[_type == "service" && slug.current == $slug][0]{ _id, index, name, "slug": slug.current, short, description, image{ asset->{_id, url}, alt }, capabilities }`,
-        { slug }
-      )
-      .then(setSanityService)
-      .catch(console.error);
+  const { data: fetchedOther } = useSanityQuery(
+    `*[_type == "service" && slug.current != $slug] | order(index asc) [0...3] { _id, index, name, "slug": slug.current, image{ asset->{_id, url}, alt } }`,
+    { slug },
+  );
 
-    client
-      .fetch(
-        `*[_type == "service" && slug.current != $slug] | order(index asc) [0...3] { _id, index, name, "slug": slug.current, image{ asset->{_id, url}, alt } }`,
-        { slug }
-      )
-      .then((res: any[]) => {
-        if (res && res.length > 0) setOtherServices(res);
-      })
-      .catch(console.error);
-  }, [slug]);
+  const otherServices: ServiceItem[] = Array.isArray(fetchedOther) ? fetchedOther : [];
 
-  const service = sanityService || localService;
+  const service: ServiceItem | null =
+    (sanityService as ServiceItem) || (localService as ServiceItem);
   const isSanity = !!sanityService;
 
   if (!service) {
@@ -76,14 +75,19 @@ function ServiceDetail() {
     );
   }
 
-  const imgSrc = isSanity && service.image?.asset
-    ? urlFor(service.image).width(1200).quality(80).url()
-    : service.image;
-  const imgAlt = isSanity ? (service.image?.alt || service.name) : service.name;
+  const imgSrc =
+    isSanity && typeof service.image === "object" && service.image?.asset
+      ? urlFor(service.image).width(1200).quality(80).url()
+      : (service.image as string);
+  const imgAlt =
+    isSanity && typeof service.image === "object" && service.image?.alt
+      ? service.image.alt
+      : (service.name ?? "Service image");
 
-  const others = otherServices.length > 0
-    ? otherServices
-    : SERVICES.filter((s) => s.slug !== (service.slug || slug)).slice(0, 3);
+  const others: ServiceItem[] =
+    otherServices.length > 0
+      ? otherServices
+      : (SERVICES.filter((s) => s.slug !== (service.slug || slug)).slice(0, 3) as ServiceItem[]);
   const othersIsSanity = otherServices.length > 0;
 
   return (
@@ -147,12 +151,16 @@ function ServiceDetail() {
             </div>
           </div>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {others.map((s: any) => {
-              const otherSlug = othersIsSanity ? s.slug : s.slug;
-              const otherImg = othersIsSanity && s.image?.asset
-                ? urlFor(s.image).width(800).quality(80).url()
-                : s.image;
-              const otherAlt = othersIsSanity ? (s.image?.alt || s.name) : s.name;
+            {others.map((s: ServiceItem) => {
+              const otherSlug = s.slug ?? "";
+              const otherImg =
+                othersIsSanity && typeof s.image === "object" && s.image?.asset
+                  ? urlFor(s.image).width(800).quality(80).url()
+                  : (s.image as string);
+              const otherAlt =
+                othersIsSanity && typeof s.image === "object" && s.image?.alt
+                  ? s.image.alt
+                  : (s.name ?? "Service image");
               return (
                 <Link
                   key={otherSlug}

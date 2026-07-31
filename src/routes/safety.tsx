@@ -1,25 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
 import { HardHat, ShieldCheck, ClipboardCheck, AlertTriangle, Globe2 } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { Reveal, RevealImage } from "@/components/Reveal";
 import { QuoteButton } from "@/components/CTAButton";
 import { IMG } from "@/lib/content";
-import { client, urlFor } from "@/sanityclient";
+import { urlFor } from "@/sanityclient/index";
+import { useSanityQuery } from "@/hooks/useSanityQuery";
 
 export const Route = createFileRoute("/safety")({
   head: () => ({
     meta: [
-      { title: "Health, Safety & Environment — Horizon 7 Company Ltd" },
+      { title: "Safety & Quality — Horizon 7 Company Ltd" },
       {
         name: "description",
         content:
-          "Zero-harm HSE culture, certified workforce, QA/QC discipline and international safety standards on every Horizon 7 project.",
+          "HSE policies, QA/QC standards, coded welder qualifications and ISO-aligned risk management at Horizon 7 Company Ltd.",
       },
-      { property: "og:title", content: "Safety — Horizon 7 Company Ltd" },
+      { property: "og:title", content: "HSE & Quality — Horizon 7 Company Ltd" },
       {
         property: "og:description",
-        content: "Zero-harm HSE culture and international safety standards on every site.",
+        content: "Zero-harm commitment and ASME / AWS D1.1 quality procedures on every site.",
       },
       { property: "og:url", content: "/safety" },
     ],
@@ -53,45 +53,49 @@ const FALLBACK_PILLARS = [
   },
 ];
 
+interface PillarItem {
+  title?: string;
+  body?: string;
+}
+
 function SafetyPage() {
-  const [data, setData] = useState<any>(null);
+  const { data } = useSanityQuery(
+    `*[_type == "safetyPage"][0]{
+      pageEyebrow, pageTitle, pageIntro,
+      commitmentEyebrow, commitmentHeading, commitmentParagraph,
+      commitmentImage{ asset->{_id, url}, alt },
+      pillarsEyebrow, pillarsHeading,
+      pillars[]{ title, body }
+    }`,
+  );
 
-  useEffect(() => {
-    client
-      .fetch(
-        `*[_type == "safetyPage"][0]{
-          pageEyebrow, pageTitle, pageIntro,
-          commitmentEyebrow, commitmentHeading, commitmentParagraph,
-          commitmentImage{ asset->{_id, url}, alt },
-          pillarsEyebrow, pillarsHeading,
-          pillars[]{ title, body }
-        }`
-      )
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  const pageEyebrow = (data?.pageEyebrow as string) ?? "HSE & Quality";
+  const pageTitle =
+    (data?.pageTitle as string) ?? "Zero harm. Documented quality. International discipline.";
+  const pageIntro =
+    (data?.pageIntro as string) ??
+    "Safety is not a department at Horizon 7 — it is how every project is planned, permitted and executed. Our HSE and QA/QC systems are aligned with international operators' expectations.";
 
-  const pageEyebrow = data?.pageEyebrow ?? "HSE & Quality";
-  const pageTitle = data?.pageTitle ?? "Zero harm. Documented quality. International discipline.";
-  const pageIntro = data?.pageIntro ?? "Safety is not a department at Horizon 7 — it is how every project is planned, permitted and executed. Our HSE and QA/QC systems are aligned with international operators' expectations.";
+  const commitEyebrow = (data?.commitmentEyebrow as string) ?? "Commitment";
+  const commitHeading =
+    (data?.commitmentHeading as string) ?? "Every shift ends the way it started — safely.";
+  const commitParagraph =
+    (data?.commitmentParagraph as string) ??
+    "From high-risk refinery turnarounds to remote civil worksites, our HSE framework protects our people, our clients' assets and the communities we operate in.";
+  const commitImgSrc = data?.commitmentImage?.asset
+    ? urlFor(data.commitmentImage).width(800).quality(80).url()
+    : IMG.scaffolding;
+  const commitImgAlt =
+    (data?.commitmentImage?.alt as string) ?? "Certified scaffolding on an industrial facility";
 
-  const commitEyebrow = data?.commitmentEyebrow ?? "Commitment";
-  const commitHeading = data?.commitmentHeading ?? "Every shift ends the way it started — safely.";
-  const commitParagraph = data?.commitmentParagraph ?? "From high-risk refinery turnarounds to remote civil worksites, our HSE framework protects our people, our clients' assets and the communities we operate in.";
-  const commitImgSrc = data?.commitmentImage?.asset ? urlFor(data.commitmentImage).width(800).quality(80).url() : IMG.scaffolding;
-  const commitImgAlt = data?.commitmentImage?.alt ?? "Certified scaffolding on an industrial facility";
-
-  const pillarsEyebrow = data?.pillarsEyebrow ?? "Five Pillars";
-  const pillarsHeading = data?.pillarsHeading ?? "How safety and quality are embedded in every project.";
-  const pillars = data?.pillars?.length ? data.pillars : FALLBACK_PILLARS;
+  const pillarsEyebrow = (data?.pillarsEyebrow as string) ?? "Five Pillars";
+  const pillarsHeading =
+    (data?.pillarsHeading as string) ?? "How safety and quality are embedded in every project.";
+  const pillars: PillarItem[] = data?.pillars?.length ? data.pillars : FALLBACK_PILLARS;
 
   return (
     <PageShell>
-      <PageHeader
-        eyebrow={pageEyebrow}
-        title={pageTitle}
-        intro={pageIntro}
-      />
+      <PageHeader eyebrow={pageEyebrow} title={pageTitle} intro={pageIntro} />
 
       <section className="bg-background">
         <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
@@ -120,11 +124,7 @@ function SafetyPage() {
                   />
                 </div>
               ) : (
-                <RevealImage
-                  src={commitImgSrc}
-                  alt={commitImgAlt}
-                  aspect="aspect-[4/3]"
-                />
+                <RevealImage src={commitImgSrc} alt={commitImgAlt} aspect="aspect-[4/3]" />
               )}
             </div>
           </div>
@@ -140,11 +140,11 @@ function SafetyPage() {
             </h2>
           </Reveal>
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {pillars.map((p: any, i: number) => {
+            {pillars.map((p: PillarItem, i: number) => {
               const Icon = PILLAR_ICONS[i] ?? HardHat;
               return (
                 <Reveal
-                  key={p.title}
+                  key={p.title ?? i}
                   delay={(i % 3) * 0.06}
                   className="border-l border-t border-hairline bg-background p-8 lg:p-10"
                 >

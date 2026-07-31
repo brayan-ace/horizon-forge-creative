@@ -15,9 +15,11 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { QuoteProvider } from "../components/QuoteDialog";
 import { SITE } from "../lib/site";
-import { client } from "../sanityclient";
-import { createContext, useContext, useState } from "react";
+import { useSanityQuery } from "../hooks/useSanityQuery";
+import { PreviewBanner } from "../components/PreviewBanner";
+import { createContext, useContext } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SiteSettingsContext = createContext<any>(null);
 export function useSiteSettings() {
   return useContext(SiteSettingsContext);
@@ -172,19 +174,17 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const location = useLocation();
-  const [settings, setSettings] = useState<any>(null);
+
+  const { data: settings } = useSanityQuery(`*[_type == "siteSettings"][0]`);
 
   useEffect(() => {
-    client.fetch(`*[_type == "siteSettings"][0]`).then((data) => {
-      setSettings(data);
-      if (data?.primaryColor) {
-        document.documentElement.style.setProperty('--orange', data.primaryColor);
-      }
-      if (data?.secondaryColor) {
-        document.documentElement.style.setProperty('--navy', data.secondaryColor);
-      }
-    }).catch(console.error);
-  }, []);
+    if (settings?.primaryColor) {
+      document.documentElement.style.setProperty("--orange", settings.primaryColor);
+    }
+    if (settings?.secondaryColor) {
+      document.documentElement.style.setProperty("--navy", settings.secondaryColor);
+    }
+  }, [settings]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -201,6 +201,7 @@ function RootComponent() {
               <Outlet />
             </motion.div>
           </AnimatePresence>
+          <PreviewBanner />
         </QuoteProvider>
       </SiteSettingsContext.Provider>
     </QueryClientProvider>

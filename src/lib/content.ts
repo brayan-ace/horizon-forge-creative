@@ -518,5 +518,5 @@ export const TESTIMONIALS = [
       "From planning to execution, their civil works team is unmatched in Central Africa. A seamless experience from day one.",
     author: "Lead Architect",
     role: "Urban Development Agency",
-  }
+  },
 ];

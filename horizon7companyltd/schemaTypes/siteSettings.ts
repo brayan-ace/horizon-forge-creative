@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'siteSettings',
@@ -72,8 +72,8 @@ export default defineType({
         {
           type: 'object',
           fields: [
-            { name: 'label', type: 'string', title: 'Label' },
-            { name: 'to', type: 'string', title: 'Path (e.g., /about)' },
+            {name: 'label', type: 'string', title: 'Label'},
+            {name: 'to', type: 'string', title: 'Path (e.g., /about)'},
           ],
         },
       ],

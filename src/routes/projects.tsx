@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { Reveal, RevealImage } from "@/components/Reveal";
 import { QuoteButton } from "@/components/CTAButton";
 import { PROJECTS } from "@/lib/content";
-import { client, urlFor } from "@/sanityclient";
+import { urlFor } from "@/sanityclient/index";
+import { useSanityQuery } from "@/hooks/useSanityQuery";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -28,48 +28,57 @@ export const Route = createFileRoute("/projects")({
   component: ProjectsPage,
 });
 
+interface ProjectItem {
+  _id?: string;
+  name?: string;
+  slug?: string;
+  category?: string;
+  location?: string;
+  status?: string;
+  description?: string;
+  image?: { asset?: unknown; alt?: string } | string;
+}
+
 function ProjectsPage() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [pageData, setPageData] = useState<any>(null);
+  const { data: fetchedProjects } = useSanityQuery(
+    `*[_type == "project"] | order(_createdAt asc) { _id, name, "slug": slug.current, category, location, status, description, image{ asset->{_id, url}, alt } }`,
+  );
+  const { data: pageData } = useSanityQuery(
+    `*[_type == "projectsPage"][0]{ pageEyebrow, pageTitle, pageIntro, ctaHeading }`,
+  );
 
-  useEffect(() => {
-    client
-      .fetch(`*[_type == "project"] | order(_createdAt asc) { _id, name, "slug": slug.current, category, location, status, description, image{ asset->{_id, url}, alt } }`)
-      .then((res: any[]) => {
-        if (res && res.length > 0) setProjects(res);
-      })
-      .catch(console.error);
-
-    client
-      .fetch(`*[_type == "projectsPage"][0]{ pageEyebrow, pageTitle, pageIntro, ctaHeading }`)
-      .then(setPageData)
-      .catch(console.error);
-  }, []);
-
-  const displayProjects = projects.length > 0 ? projects : PROJECTS;
+  const projects: ProjectItem[] = Array.isArray(fetchedProjects) ? fetchedProjects : [];
+  const displayProjects: ProjectItem[] =
+    projects.length > 0 ? projects : (PROJECTS as ProjectItem[]);
   const isSanity = projects.length > 0;
 
-  const pageEyebrow = pageData?.pageEyebrow ?? "Portfolio";
-  const pageTitle = pageData?.pageTitle ?? "Selected work across Cameroon.";
-  const pageIntro = pageData?.pageIntro ?? "A cross-section of the projects our engineers, welders and site teams have delivered for industrial operators, EPC contractors and public infrastructure programs.";
-  const ctaHeading = pageData?.ctaHeading ?? "Have a project in mind? Let's discuss the scope.";
+  const pageEyebrow = (pageData?.pageEyebrow as string) ?? "Portfolio";
+  const pageTitle = (pageData?.pageTitle as string) ?? "Selected work across Cameroon.";
+  const pageIntro =
+    (pageData?.pageIntro as string) ??
+    "A cross-section of the projects our engineers, welders and site teams have delivered for industrial operators, EPC contractors and public infrastructure programs.";
+  const ctaHeading =
+    (pageData?.ctaHeading as string) ?? "Have a project in mind? Let's discuss the scope.";
 
   return (
     <PageShell>
-      <PageHeader
-        eyebrow={pageEyebrow}
-        title={pageTitle}
-        intro={pageIntro}
-      />
+      <PageHeader eyebrow={pageEyebrow} title={pageTitle} intro={pageIntro} />
 
       <section className="bg-background">
         <div className="mx-auto max-w-[1440px] px-6 py-24 lg:px-10 lg:py-32">
           <div className="grid grid-cols-1 gap-x-8 gap-y-20 md:grid-cols-2 lg:gap-x-14">
-            {displayProjects.map((p: any, i: number) => {
-              const imgSrc = isSanity && p.image?.asset ? urlFor(p.image).width(800).quality(80).url() : p.image;
-              const imgAlt = isSanity ? (p.image?.alt || p.name) : p.name;
+            {displayProjects.map((p: ProjectItem, i: number) => {
+              const imgSrc =
+                isSanity && typeof p.image === "object" && p.image?.asset
+                  ? urlFor(p.image).width(800).quality(80).url()
+                  : (p.image as string);
+              const imgAlt =
+                isSanity && typeof p.image === "object" && p.image?.alt
+                  ? p.image.alt
+                  : (p.name ?? "Project image");
+
               return (
-                <Reveal key={p.slug || p._id} delay={(i % 2) * 0.1}>
+                <Reveal key={p.slug || p._id || i} delay={(i % 2) * 0.1}>
                   <article className={i % 2 === 1 ? "md:mt-24" : ""}>
                     {isSanity ? (
                       <div className="relative overflow-hidden aspect-[4/3]">
