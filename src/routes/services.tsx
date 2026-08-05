@@ -222,7 +222,7 @@ function ServicesPage() {
             ))}
           </div>
           
-          <div className="absolute bottom-8 left-0 right-0 text-center text-sm text-white/50 pointer-events-none">
+          <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center text-sm tracking-wide text-white/50 pointer-events-none animate-pulse">
             Swipe horizontally to explore
           </div>
         </div>
