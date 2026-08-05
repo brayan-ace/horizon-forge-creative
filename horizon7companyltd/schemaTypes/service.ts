@@ -55,6 +55,13 @@ export default defineType({
       type: 'array',
       of: [{type: 'string'}],
     }),
+    defineField({
+      name: 'gallery',
+      title: 'Gallery Images',
+      type: 'array',
+      of: [{type: 'image', options: {hotspot: true}}],
+      description: 'Images to show in the service gallery carousel',
+    }),
   ],
   orderings: [
     {

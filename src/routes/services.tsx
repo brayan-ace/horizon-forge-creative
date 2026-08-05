@@ -9,21 +9,6 @@ import { waLink } from "@/lib/site";
 import { urlFor } from "@/sanityclient/index";
 import { useSanityQuery } from "@/hooks/useSanityQuery";
 
-const serviceImagesObj = import.meta.glob('@/assets/service*.jpg', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-});
-
-const sortedServiceImages = Object.keys(serviceImagesObj)
-  .map((key) => {
-    const match = key.match(/service \((\d+)\)\.jpg/);
-    const num = match ? parseInt(match[1], 10) : 0;
-    return { num, url: serviceImagesObj[key] as string };
-  })
-  .sort((a, b) => a.num - b.num)
-  .map((item) => item.url);
-
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -55,13 +40,14 @@ interface ServiceListItem {
   short?: string;
   description?: string;
   image?: { asset?: unknown; alt?: string } | string;
+  gallery?: { asset?: { url?: string } }[];
 }
 
 function ServicesPage() {
   const [lightbox, setLightbox] = useState<{ images: string[]; currentIndex: number } | null>(null);
 
   const { data: fetchedServices } = useSanityQuery(
-    `*[_type == "service"] | order(index asc) { _id, index, name, "slug": slug.current, short, description, image{ asset->{_id, url}, alt }, capabilities }`,
+    `*[_type == "service"] | order(index asc) { _id, index, name, "slug": slug.current, short, description, image{ asset->{_id, url}, alt }, gallery[]{ asset->{url} }, capabilities }`,
   );
   const { data: pageData } = useSanityQuery(
     `*[_type == "servicesPage"][0]{ pageEyebrow, pageTitle, pageIntro, ctaEyebrow, ctaHeading }`,
@@ -131,22 +117,27 @@ function ServicesPage() {
                     </p>
 
                     {/* Image Gallery Row */}
-                    {sortedServiceImages.length > 0 && (
+                    {s.gallery && s.gallery.length > 0 && (
                       <div className="mt-5 flex w-full gap-2 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        {sortedServiceImages.slice(i * 8, (i + 1) * 8).map((url, idx) => (
-                          <button 
-                            key={idx} 
-                            onClick={() => setLightbox({ images: sortedServiceImages.slice(i * 8, (i + 1) * 8), currentIndex: idx })}
-                            className="relative h-20 w-32 flex-none overflow-hidden snap-center rounded-sm bg-muted/20 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange"
-                          >
-                            <img 
-                              src={url} 
-                              loading="lazy" 
-                              alt={`${s.name || 'Service'} gallery image ${idx + 1}`} 
-                              className="h-full w-full object-cover grayscale-[30%] transition-all duration-500 hover:scale-110 hover:grayscale-0" 
-                            />
-                          </button>
-                        ))}
+                        {s.gallery.map((g, idx) => {
+                          const url = g.asset?.url;
+                          if (!url) return null;
+                          const allUrls = s.gallery!.map(item => item.asset?.url).filter(Boolean) as string[];
+                          return (
+                            <button 
+                              key={idx} 
+                              onClick={() => setLightbox({ images: allUrls, currentIndex: idx })}
+                              className="relative h-20 w-32 flex-none overflow-hidden snap-center rounded-sm bg-muted/20 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange"
+                            >
+                              <img 
+                                src={url} 
+                                loading="lazy" 
+                                alt={`${s.name || 'Service'} gallery image ${idx + 1}`} 
+                                className="h-full w-full object-cover grayscale-[30%] transition-all duration-500 hover:scale-110 hover:grayscale-0" 
+                              />
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
 
