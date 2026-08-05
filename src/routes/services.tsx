@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, X } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
 import { QuoteButton, CTALink } from "@/components/CTAButton";
@@ -57,6 +58,8 @@ interface ServiceListItem {
 }
 
 function ServicesPage() {
+  const [lightbox, setLightbox] = useState<{ images: string[]; currentIndex: number } | null>(null);
+
   const { data: fetchedServices } = useSanityQuery(
     `*[_type == "service"] | order(index asc) { _id, index, name, "slug": slug.current, short, description, image{ asset->{_id, url}, alt }, capabilities }`,
   );
@@ -131,9 +134,10 @@ function ServicesPage() {
                     {sortedServiceImages.length > 0 && (
                       <div className="mt-5 flex w-full gap-2 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         {sortedServiceImages.slice(i * 8, (i + 1) * 8).map((url, idx) => (
-                          <div 
+                          <button 
                             key={idx} 
-                            className="relative h-20 w-32 flex-none overflow-hidden snap-center rounded-sm bg-muted/20"
+                            onClick={() => setLightbox({ images: sortedServiceImages.slice(i * 8, (i + 1) * 8), currentIndex: idx })}
+                            className="relative h-20 w-32 flex-none overflow-hidden snap-center rounded-sm bg-muted/20 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange"
                           >
                             <img 
                               src={url} 
@@ -141,7 +145,7 @@ function ServicesPage() {
                               alt={`${s.name || 'Service'} gallery image ${idx + 1}`} 
                               className="h-full w-full object-cover grayscale-[30%] transition-all duration-500 hover:scale-110 hover:grayscale-0" 
                             />
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -183,6 +187,46 @@ function ServicesPage() {
           </div>
         </div>
       </section>
+
+      {lightbox && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-md transition-opacity duration-300">
+          <button 
+            className="absolute right-6 top-6 z-50 p-2 text-white/70 transition-colors hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange"
+            onClick={() => setLightbox(null)}
+            aria-label="Close fullscreen view"
+          >
+            <X className="h-8 w-8" />
+          </button>
+          
+          <div 
+            className="flex h-full w-full snap-x snap-mandatory items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            ref={(el) => {
+              if (el && !el.dataset.scrolled) {
+                const child = el.children[lightbox.currentIndex] as HTMLElement;
+                if (child) {
+                  el.scrollTo({ left: child.offsetLeft, behavior: 'instant' });
+                  el.dataset.scrolled = 'true';
+                }
+              }
+            }}
+          >
+            {lightbox.images.map((imgUrl, idx) => (
+              <div key={idx} className="flex h-full w-full flex-none snap-center items-center justify-center p-4 md:p-12">
+                <img 
+                  src={imgUrl} 
+                  className="max-h-full max-w-full object-contain drop-shadow-2xl" 
+                  alt={`Fullscreen view ${idx + 1}`} 
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="absolute bottom-8 left-0 right-0 text-center text-sm text-white/50 pointer-events-none">
+            Swipe horizontally to explore
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }
